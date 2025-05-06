@@ -1,131 +1,100 @@
 # SwissAirDry Plattform
 
-Ein umfassendes IoT-System zur Überwachung und Steuerung von Trocknungsgeräten mit STM32/ESP32-Hardware.
+![SwissAirDry Logo](static/img/logo.png)
 
-![SwissAirDry Logo](generated-icon.png)
+## Übersicht
 
-## Überblick
+Die SwissAirDry-Plattform ist eine umfassende IoT-Lösung zur Überwachung und Steuerung von Trocknungsgeräten mittels ESP8266/ESP32/STM32-Hardware. Die Plattform bietet eine vollständige Integration von MQTT- und BLE-Kommunikation (Bluetooth Low Energy) mit einer modernen Weboberfläche.
 
-SwissAirDry ist eine vollständige IoT-Lösung, die Backend-APIs, MQTT-Kommunikation, PostgreSQL-Datenbank und ESP32/STM32-Geräte integriert. Das System bietet Web-Dashboards zur Geräteverwaltung, Statusüberwachung und Konfiguration. IoT-Geräte umfassen verschiedene Mikrocontroller mit Displayfunktionen (64px und 128px-Varianten), die den Gerätestatus und QR-Codes für einfachen Zugriff anzeigen.
+## Hauptfunktionen
 
-Die Plattform enthält jetzt auch eine Nextcloud-Integration über die ExApp (External App)-Architektur, die eine nahtlose Verbindung zwischen dem SwissAirDry-Ökosystem und Nextcloud-Diensten bietet.
+- **IoT-Integration**: Kommunikation mit MQTT und BLE für umfassende Gerätekonnektivität
+- **Weboberfläche**: Moderne, responsive Benutzeroberfläche für die Geräteverwaltung
+- **Automatische Geräteerkennung**: BLE-fähige Geräte werden automatisch erkannt
+- **Fernsteuerung**: Steuern Sie Ihre Geräte aus der Ferne über das Web
+- **Aufgabenplanung**: Weisen Sie Trocknungsaufgaben automatisch zu und planen Sie sie
+- **Datenverfolgung**: Verfolgen und analysieren Sie Umgebungsdaten (Temperatur, Luftfeuchtigkeit)
+- **Nextcloud-Integration**: Erweiterte Funktionen durch Nextcloud-ExApp-Integration
 
-## Hauptkomponenten
+## Technologien
 
-- **Flask-Backend**: Stellt API-Endpunkte und Weboberfläche bereit
-- **MQTT-Kommunikation**: Ermöglicht Echtzeitkommunikation mit IoT-Geräten
-- **PostgreSQL-Datenbank**: Speichert Gerätedaten, Sensormesswerte und Konfigurationen
-- **STM32/ESP32-Firmware**: Für verschiedene Hardwarekonfigurationen optimiert
-- **Nextcloud-Integration**: ExApp zur Integration in Nextcloud-Umgebungen
-
-## Funktionen
-
-- Echtzeit-Überwachung und -Steuerung von Trocknungsgeräten
-- Geräteverwaltung mit automatischer Erkennung
-- Speicherung von Sensordaten (Temperatur, Feuchtigkeit, Druck, Lüftergeschwindigkeit, Stromverbrauch)
-- Over-the-Air (OTA) Firmware-Updates
-- QR-Code-Display für einfachen Zugang zu Geräteinformationen
-- Responsive Web-Benutzeroberfläche
-- Nextcloud-Integration für erweiterte Funktionen
-
-## Systemarchitektur
-
-```
-+------------------+      +------------------+     +-------------------+
-|                  |      |                  |     |                   |
-|   IoT-Geräte     |<---->|   MQTT-Broker    |<--->|   Flask-Backend   |
-| (STM32/ESP32)    |      | (Mosquitto)      |     | (API/Webinterface)|
-|                  |      |                  |     |                   |
-+------------------+      +------------------+     +--------+----------+
-                                                           |
-                                                           v
-                               +-------------+    +-------------------+
-                               |             |    |                   |
-                               |  Nextcloud  |<-->|   PostgreSQL DB   |
-                               |   ExApp     |    |                   |
-                               |             |    |                   |
-                               +-------------+    +-------------------+
-```
+- **Backend**: Python mit Flask
+- **Datenbank**: PostgreSQL
+- **Kommunikation**: MQTT, BLE (Bluetooth Low Energy)
+- **Frontend**: HTML5, CSS3, JavaScript
+- **IoT-Hardware**: ESP8266, ESP32, STM32
+- **Containerisierung**: Docker-Unterstützung für einfache Bereitstellung
 
 ## Installation
 
-### Voraussetzungen
+### Schnellinstallation
 
-- Docker und Docker Compose
-- Oder: Python 3.8+ und PostgreSQL
-- MQTT-Broker (Mosquitto)
-- STM32/ESP32 mit Unterstützung für die notwendigen Sensoren
+#### Linux/Mac:
+```bash
+wget -O - https://raw.githubusercontent.com/Arduinoeinsteiger/ERP/main/install.sh | sudo bash
+```
 
-### Docker-Installation
-
-1. Repository klonen:
-   ```bash
-   git clone https://github.com/yourusername/swissairdry.git
-   cd swissairdry
-   ```
-
-2. Docker Compose starten:
-   ```bash
-   docker-compose up -d
-   ```
-
-3. Die Webanwendung ist unter http://localhost:5000 verfügbar.
+#### Windows:
+1. Laden Sie [install.bat](https://raw.githubusercontent.com/Arduinoeinsteiger/ERP/main/install.bat) herunter
+2. Führen Sie die Datei als Administrator aus
 
 ### Manuelle Installation
 
-1. Repository klonen:
-   ```bash
-   git clone https://github.com/yourusername/swissairdry.git
-   cd swissairdry
-   ```
+Eine detaillierte Installationsanleitung finden Sie in der [Installationsanleitung](docs/installation.md).
 
-2. Abhängigkeiten installieren:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Dokumentation
 
-3. PostgreSQL-Datenbank einrichten.
+- [Benutzerhandbuch](docs/user_guide.md)
+- [API-Dokumentation](docs/api.md)
+- [BLE-API-Dokumentation](docs/ble_api.md)
+- [BLE-Integration](docs/ble_integration.md)
+- [Firmware-Anleitung](docs/firmware.md)
 
-4. Umgebungsvariablen konfigurieren (siehe `.env.example`).
+## Hardware-Unterstützung
 
-5. Server starten:
-   ```bash
-   gunicorn --bind 0.0.0.0:5000 main:app
-   ```
+Die SwissAirDry-Plattform unterstützt verschiedene Hardware-Konfigurationen:
 
-## Firmware-Installation
+- ESP8266-Geräte mit MQTT-Verbindung
+- ESP32-Geräte mit MQTT und BLE (Bluetooth Low Energy)
+- STM32-Geräte mit erweiterten Funktionen
 
-Die Firmware für STM32/ESP32-Geräte befindet sich im Ordner `firmware/`. Folgen Sie den Anweisungen in der entsprechenden README-Datei in diesem Verzeichnis.
+## Entwicklung
 
-## Konfiguration
+### Repository klonen
 
-### MQTT-Einstellungen
+```bash
+git clone https://github.com/Arduinoeinsteiger/ERP.git
+cd ERP
+```
 
-Die MQTT-Konfiguration kann über Umgebungsvariablen oder direkt in der `mqtt/config/mosquitto.conf`-Datei angepasst werden.
+### Entwicklungsumgebung einrichten
 
-### Datenbank-Einstellungen
+```bash
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-Die Datenbankeinstellungen werden über Umgebungsvariablen konfiguriert. Siehe `.env.example` für die verfügbaren Optionen.
+### Datenbank einrichten
 
-## API-Dokumentation
+```bash
+# Konfigurieren Sie Ihre .env-Datei mit den Datenbankverbindungsdaten
+# Starten Sie die Anwendung, die Tabellen werden automatisch erstellt
+python main.py
+```
 
-Die API-Endpunkte ermöglichen die Verwaltung von Geräten, Sensordaten und Konfigurationen. Eine detaillierte Dokumentation ist unter `/api/docs` verfügbar, wenn der Server läuft.
+## Beitragen
 
-## Nextcloud-Integration
-
-Die SwissAirDry-Plattform kann in Nextcloud integriert werden. Dazu müssen Sie:
-
-1. Die ExApp in Ihrer Nextcloud-Instanz installieren
-2. Den ExApp-Daemon konfigurieren, um mit der SwissAirDry-API zu kommunizieren
+Wir freuen uns über Beiträge! Bitte lesen Sie [CONTRIBUTING.md](CONTRIBUTING.md) für Details zum Einreichen von Pull-Requests.
 
 ## Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizenziert. Weitere Informationen finden Sie in der LICENSE-Datei.
+Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe die [LICENSE](LICENSE) Datei für Details.
 
-## Autoren
+## Kontakt
 
-- Ihre Namen und Kontaktinformationen
+- GitHub: [https://github.com/Arduinoeinsteiger/ERP](https://github.com/Arduinoeinsteiger/ERP)
 
-## Mitwirken
+---
 
-Beiträge zum Projekt sind willkommen! Bitte erstellen Sie einen Fork des Repositories und reichen Sie Pull Requests ein.
+Entwickelt von [Arduinoeinsteiger](https://github.com/Arduinoeinsteiger)
