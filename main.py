@@ -171,6 +171,17 @@ def settings_page():
     """Render the settings page."""
     return render_template("settings.html")
 
+# BLE devices page
+@app.route("/ble-devices")
+def ble_devices_page():
+    """Render the BLE devices page."""
+    db = next(get_db())
+    try:
+        tasks = db.query(models.Task).filter_by(is_active=True).all()
+        return render_template("ble_devices.html", tasks=tasks)
+    finally:
+        db.close()
+
 # BLE-spezifische Routen
 @app.route("/api/ble/devices")
 def get_ble_devices_api():

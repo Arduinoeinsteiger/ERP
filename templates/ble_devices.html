@@ -1,0 +1,697 @@
+{% extends "base.html" %}
+
+{% block title %}BLE-Geräte - SwissAirDry{% endblock %}
+
+{% block content %}
+<div class="ble-devices-page">
+  <header class="page-header">
+    <h1>BLE-Geräte</h1>
+    <p class="subtitle">Verwalten und steuern Sie Ihre Bluetooth-fähigen SwissAirDry-Geräte</p>
+  </header>
+
+  <div class="control-panel">
+    <button id="scan-button" class="primary-button">
+      <i class="fa fa-search"></i> Nach BLE-Geräten scannen
+    </button>
+    <span id="scan-status">Status: Bereit</span>
+  </div>
+
+  <div class="devices-container">
+    <div class="loader" id="devices-loader" style="display: none;">
+      <div class="spinner"></div>
+      <span>Geräte werden geladen...</span>
+    </div>
+    
+    <div id="no-devices-message" style="display: none;">
+      <p>Keine BLE-Geräte gefunden. Stellen Sie sicher, dass Bluetooth aktiviert ist und Ihre Geräte eingeschaltet sind.</p>
+    </div>
+    
+    <div id="devices-list"></div>
+  </div>
+  
+  <!-- Aufgabenzuweisung Modal -->
+  <div id="task-assignment-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Aufgabe zuweisen</h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="task-assignment-form">
+          <input type="hidden" id="task-device-id">
+          
+          <div class="form-group">
+            <label for="task-id">Aufgabe auswählen:</label>
+            <select id="task-id" required>
+              <option value="">-- Aufgabe auswählen --</option>
+              {% for task in tasks %}
+              <option value="{{ task.id }}">{{ task.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="start-time">Startzeit (optional):</label>
+            <input type="datetime-local" id="start-time">
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="secondary-button cancel-button">Abbrechen</button>
+            <button type="submit" class="primary-button">Aufgabe zuweisen</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const devicesList = document.getElementById('devices-list');
+  const noDevicesMessage = document.getElementById('no-devices-message');
+  const scanButton = document.getElementById('scan-button');
+  const scanStatus = document.getElementById('scan-status');
+  const devicesLoader = document.getElementById('devices-loader');
+  const taskModal = document.getElementById('task-assignment-modal');
+  const taskForm = document.getElementById('task-assignment-form');
+  const taskDeviceId = document.getElementById('task-device-id');
+  
+  // Lade Geräte beim Seitenaufruf
+  loadDevices();
+  
+  // Event Listener für Scan-Button
+  scanButton.addEventListener('click', function() {
+    scanStatus.textContent = 'Status: Scanne...';
+    scanButton.disabled = true;
+    
+    // In einer echten Anwendung würde hier ein Scan gestartet werden
+    // Für diese Demo laden wir einfach die Geräte neu
+    setTimeout(() => {
+      loadDevices();
+      scanButton.disabled = false;
+      scanStatus.textContent = 'Status: Scan abgeschlossen';
+    }, 2000);
+  });
+  
+  // Event Listener für Aufgabenzuweisung Modal
+  document.querySelectorAll('.close-modal, .cancel-button').forEach(el => {
+    el.addEventListener('click', function() {
+      taskModal.style.display = 'none';
+    });
+  });
+  
+  // Event Listener für Aufgabenzuweisung Formular
+  taskForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const deviceId = taskDeviceId.value;
+    const taskId = document.getElementById('task-id').value;
+    const startTime = document.getElementById('start-time').value;
+    
+    assignTask(deviceId, taskId, startTime);
+  });
+  
+  // Lade Geräte vom API
+  function loadDevices() {
+    devicesLoader.style.display = 'flex';
+    devicesList.innerHTML = '';
+    noDevicesMessage.style.display = 'none';
+    
+    fetch('/api/ble/devices')
+      .then(response => response.json())
+      .then(data => {
+        devicesLoader.style.display = 'none';
+        
+        if (data.success && data.devices && data.devices.length > 0) {
+          data.devices.forEach(device => {
+            devicesList.appendChild(createDeviceCard(device));
+          });
+        } else {
+          noDevicesMessage.style.display = 'block';
+        }
+      })
+      .catch(error => {
+        console.error('Fehler beim Laden der Geräte:', error);
+        devicesLoader.style.display = 'none';
+        noDevicesMessage.style.display = 'block';
+      });
+  }
+  
+  // Erstelle eine Gerätekarte
+  function createDeviceCard(device) {
+    const card = document.createElement('div');
+    card.className = 'device-card';
+    card.dataset.deviceId = device.device_id;
+    
+    const signal = device.ble_rssi ? `<span class="rssi-indicator" title="Signal: ${device.ble_rssi} dBm"><i class="fa fa-signal"></i> ${device.ble_rssi} dBm</span>` : '';
+    const connectionStatus = device.ble_connected ? 
+      '<span class="status-badge connected"><i class="fa fa-bluetooth"></i> Verbunden</span>' : 
+      '<span class="status-badge disconnected"><i class="fa fa-bluetooth"></i> Getrennt</span>';
+    
+    card.innerHTML = `
+      <div class="device-header">
+        <h3>${device.name}</h3>
+        ${connectionStatus}
+      </div>
+      <div class="device-info">
+        <p><strong>ID:</strong> ${device.device_id}</p>
+        <p><strong>Typ:</strong> ${device.type}</p>
+        <p><strong>Firmware:</strong> ${device.firmware_version || 'Unbekannt'}</p>
+        <p><strong>BLE-Adresse:</strong> ${device.ble_address}</p>
+        ${signal}
+        <p><strong>Zuletzt gesehen:</strong> ${formatDate(device.last_seen)}</p>
+      </div>
+      <div class="device-controls">
+        <div class="power-control">
+          <label>Power:</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="power-${device.device_id}" ${device.is_online ? 'checked' : ''}>
+            <label for="power-${device.device_id}"></label>
+          </div>
+        </div>
+        <div class="fan-control">
+          <label>Lüfter: <span class="fan-value">50%</span></label>
+          <input type="range" min="0" max="100" value="50" class="fan-slider" data-device-id="${device.device_id}">
+        </div>
+        <button class="assign-task-button secondary-button" data-device-id="${device.device_id}">
+          <i class="fa fa-tasks"></i> Aufgabe zuweisen
+        </button>
+      </div>
+    `;
+    
+    // Event Listener für Power-Toggle
+    const powerToggle = card.querySelector(`#power-${device.device_id}`);
+    powerToggle.addEventListener('change', function() {
+      controlPower(device.device_id, this.checked);
+    });
+    
+    // Event Listener für Fan-Slider
+    const fanSlider = card.querySelector('.fan-slider');
+    const fanValue = card.querySelector('.fan-value');
+    fanSlider.addEventListener('input', function() {
+      fanValue.textContent = this.value + '%';
+    });
+    fanSlider.addEventListener('change', function() {
+      controlFan(device.device_id, parseInt(this.value));
+    });
+    
+    // Event Listener für Aufgabenzuweisung
+    const assignButton = card.querySelector('.assign-task-button');
+    assignButton.addEventListener('click', function() {
+      openTaskAssignmentModal(device.device_id);
+    });
+    
+    return card;
+  }
+  
+  // Formatiere ein Datum
+  function formatDate(dateString) {
+    if (!dateString) return 'Nie';
+    const date = new Date(dateString);
+    return date.toLocaleString('de-DE');
+  }
+  
+  // Steuere den Power-Status eines Geräts
+  function controlPower(deviceId, state) {
+    fetch(`/api/ble/device/${deviceId}/power`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ state: state })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification(`Power-Befehl (${state ? 'Ein' : 'Aus'}) gesendet`, 'success');
+      } else {
+        showNotification(`Fehler: ${data.error}`, 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Fehler bei Power-Steuerung:', error);
+      showNotification('Verbindungsfehler bei Power-Steuerung', 'error');
+    });
+  }
+  
+  // Steuere die Lüftergeschwindigkeit eines Geräts
+  function controlFan(deviceId, speed) {
+    fetch(`/api/ble/device/${deviceId}/fan`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ speed: speed })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification(`Lüftergeschwindigkeit auf ${speed}% gesetzt`, 'success');
+      } else {
+        showNotification(`Fehler: ${data.error}`, 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Fehler bei Lüftersteuerung:', error);
+      showNotification('Verbindungsfehler bei Lüftersteuerung', 'error');
+    });
+  }
+  
+  // Öffne das Aufgabenzuweisung-Modal
+  function openTaskAssignmentModal(deviceId) {
+    taskDeviceId.value = deviceId;
+    taskModal.style.display = 'block';
+  }
+  
+  // Weise einem Gerät eine Aufgabe zu
+  function assignTask(deviceId, taskId, startTime) {
+    const body = { task_id: parseInt(taskId) };
+    if (startTime) {
+      body.start_time = new Date(startTime).toISOString();
+    }
+    
+    fetch(`/api/ble/device/${deviceId}/assign_task`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification(`Aufgabe erfolgreich zugewiesen`, 'success');
+        taskModal.style.display = 'none';
+      } else {
+        showNotification(`Fehler: ${data.error}`, 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Fehler bei Aufgabenzuweisung:', error);
+      showNotification('Verbindungsfehler bei Aufgabenzuweisung', 'error');
+    });
+  }
+  
+  // Zeige eine Benachrichtigung
+  function showNotification(message, type = 'info') {
+    // Hier würde normalerweise eine Benachrichtigung angezeigt werden
+    console.log(`Benachrichtigung (${type}): ${message}`);
+    
+    // Einfache Implementierung für diese Demo
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+});
+</script>
+
+<style>
+.ble-devices-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-header {
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 15px;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: var(--primary-color);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  margin-top: 5px;
+}
+
+.control-panel {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#scan-status {
+  margin-left: 15px;
+  color: var(--text-secondary);
+}
+
+.devices-container {
+  position: relative;
+  min-height: 200px;
+}
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(var(--background-rgb), 0.7);
+  z-index: 10;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(var(--primary-rgb), 0.3);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+#no-devices-message {
+  text-align: center;
+  padding: 40px;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  color: var(--text-secondary);
+}
+
+#devices-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.device-card {
+  background: var(--background-secondary);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.device-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.device-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.device-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.status-badge i {
+  margin-right: 5px;
+}
+
+.status-badge.connected {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.status-badge.disconnected {
+  background: var(--error-light);
+  color: var(--error);
+}
+
+.device-info {
+  margin-bottom: 15px;
+}
+
+.device-info p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.rssi-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  background: var(--background-tertiary);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+.rssi-indicator i {
+  margin-right: 5px;
+  color: var(--primary-color);
+}
+
+.device-controls {
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
+}
+
+.power-control, .fan-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch label {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--background-tertiary);
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.toggle-switch label:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: var(--text-color);
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + label {
+  background-color: var(--primary-color);
+}
+
+.toggle-switch input:checked + label:before {
+  transform: translateX(26px);
+  background-color: white;
+}
+
+.fan-slider {
+  flex-grow: 1;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--background-tertiary);
+  outline: none;
+  border-radius: 4px;
+}
+
+.fan-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--primary-color);
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.fan-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--primary-color);
+  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+}
+
+.fan-value {
+  margin-left: 10px;
+  width: 40px;
+  text-align: right;
+}
+
+.assign-task-button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: var(--background-color);
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--primary-color);
+}
+
+.close-modal {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.form-group select,
+.form-group input[type="datetime-local"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--background-secondary);
+  color: var(--text-color);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 4px;
+  background: var(--background-tertiary);
+  color: var(--text-color);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: transform 0.3s, opacity 0.3s;
+  z-index: 1000;
+}
+
+.notification.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.notification.success {
+  background: var(--success);
+  color: white;
+}
+
+.notification.error {
+  background: var(--error);
+  color: white;
+}
+
+.notification.info {
+  background: var(--primary-color);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  #devices-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .control-panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  #scan-status {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+}
+</style>
+{% endblock %}
