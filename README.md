@@ -1,12 +1,12 @@
 # SwissAirDry Plattform
 
-Ein umfassendes IoT-System zur Überwachung und Steuerung von Trocknungsgeräten mit ESP8266/ESP32-Hardware.
+Ein umfassendes IoT-System zur Überwachung und Steuerung von Trocknungsgeräten mit STM32/ESP32-Hardware.
 
 ![SwissAirDry Logo](generated-icon.png)
 
 ## Überblick
 
-SwissAirDry ist eine vollständige IoT-Lösung, die Backend-APIs, MQTT-Kommunikation, PostgreSQL-Datenbank und ESP32/ESP8266-Geräte integriert. Das System bietet Web-Dashboards zur Geräteverwaltung, Statusüberwachung und Konfiguration. IoT-Geräte umfassen Wemos D1 Mini mit Displayfunktionen (64px und 128px-Varianten), die den Gerätestatus und QR-Codes für einfachen Zugriff anzeigen.
+SwissAirDry ist eine vollständige IoT-Lösung, die Backend-APIs, MQTT-Kommunikation, PostgreSQL-Datenbank und ESP32/STM32-Geräte integriert. Das System bietet Web-Dashboards zur Geräteverwaltung, Statusüberwachung und Konfiguration. IoT-Geräte umfassen verschiedene Mikrocontroller mit Displayfunktionen (64px und 128px-Varianten), die den Gerätestatus und QR-Codes für einfachen Zugriff anzeigen.
 
 Die Plattform enthält jetzt auch eine Nextcloud-Integration über die ExApp (External App)-Architektur, die eine nahtlose Verbindung zwischen dem SwissAirDry-Ökosystem und Nextcloud-Diensten bietet.
 
@@ -15,7 +15,7 @@ Die Plattform enthält jetzt auch eine Nextcloud-Integration über die ExApp (Ex
 - **Flask-Backend**: Stellt API-Endpunkte und Weboberfläche bereit
 - **MQTT-Kommunikation**: Ermöglicht Echtzeitkommunikation mit IoT-Geräten
 - **PostgreSQL-Datenbank**: Speichert Gerätedaten, Sensormesswerte und Konfigurationen
-- **ESP8266/ESP32-Firmware**: Für verschiedene Hardwarekonfigurationen optimiert
+- **STM32/ESP32-Firmware**: Für verschiedene Hardwarekonfigurationen optimiert
 - **Nextcloud-Integration**: ExApp zur Integration in Nextcloud-Umgebungen
 
 ## Funktionen
@@ -34,7 +34,7 @@ Die Plattform enthält jetzt auch eine Nextcloud-Integration über die ExApp (Ex
 +------------------+      +------------------+     +-------------------+
 |                  |      |                  |     |                   |
 |   IoT-Geräte     |<---->|   MQTT-Broker    |<--->|   Flask-Backend   |
-| (ESP8266/ESP32)  |      | (Mosquitto)      |     | (API/Webinterface)|
+| (STM32/ESP32)    |      | (Mosquitto)      |     | (API/Webinterface)|
 |                  |      |                  |     |                   |
 +------------------+      +------------------+     +--------+----------+
                                                            |
@@ -54,7 +54,7 @@ Die Plattform enthält jetzt auch eine Nextcloud-Integration über die ExApp (Ex
 - Docker und Docker Compose
 - Oder: Python 3.8+ und PostgreSQL
 - MQTT-Broker (Mosquitto)
-- ESP8266/ESP32 mit Unterstützung für die notwendigen Sensoren
+- STM32/ESP32 mit Unterstützung für die notwendigen Sensoren
 
 ### Docker-Installation
 
@@ -95,7 +95,7 @@ Die Plattform enthält jetzt auch eine Nextcloud-Integration über die ExApp (Ex
 
 ## Firmware-Installation
 
-Die Firmware für ESP8266/ESP32-Geräte befindet sich im Ordner `firmware/`. Folgen Sie den Anweisungen in der entsprechenden README-Datei in diesem Verzeichnis.
+Die Firmware für STM32/ESP32-Geräte befindet sich im Ordner `firmware/`. Folgen Sie den Anweisungen in der entsprechenden README-Datei in diesem Verzeichnis.
 
 ## Konfiguration
 
