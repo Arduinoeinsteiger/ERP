@@ -16,7 +16,7 @@ class Device(Base):
     id = Column(Integer, primary_key=True, index=True)
     device_id = Column(String(50), unique=True, index=True, nullable=False)
     name = Column(String(100), nullable=False)
-    type = Column(String(50), nullable=False)  # esp8266, esp32c6, etc.
+    type = Column(String(50), nullable=False)  # stm32, esp32, etc.
     firmware_version = Column(String(20))
     hardware_version = Column(String(20))
     ip_address = Column(String(15))
@@ -87,7 +87,7 @@ class OTAUpdate(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     version = Column(String(20), nullable=False)
-    device_type = Column(String(50), nullable=False)  # esp8266, esp32c6, etc.
+    device_type = Column(String(50), nullable=False)  # stm32, esp32, etc.
     release_date = Column(DateTime, default=func.now(), nullable=False)
     description = Column(Text)
     url = Column(String(255), nullable=False)

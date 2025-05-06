@@ -121,7 +121,7 @@ void setup() {
   // Setup OTA updates
   ota.init(config.deviceId, FIRMWARE_VERSION);
   
-  // Setup display (64px OLED for ESP8266)
+  // Setup display (64px OLED for STM32)
   display.init(DISPLAY_64PX);
   display.showBootScreen(config.deviceName, FIRMWARE_VERSION, HARDWARE_VERSION);
   
@@ -296,7 +296,7 @@ void publishStatus() {
   doc["ip_address"] = WiFi.localIP().toString();
   doc["mac_address"] = WiFi.macAddress();
   doc["uptime"] = millis() / 1000;
-  doc["free_heap"] = ESP.getFreeHeap();
+  doc["free_heap"] = STM32.getFreeHeap();
   doc["fan_speed"] = currentFanSpeed;
   doc["power"] = digitalRead(POWER_CONTROL_PIN) == HIGH;
   
@@ -423,7 +423,7 @@ void handleConfigMessage(String message) {
   if (doc.containsKey("display_type")) {
     String displayType = doc["display_type"];
     if (displayType == "64px" || displayType == "none") {
-      // Only 64px and none are supported on ESP8266
+      // Only 64px and none are supported on STM32
       config.displayType = displayType;
     }
   }
