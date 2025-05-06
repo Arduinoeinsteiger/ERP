@@ -1,0 +1,5 @@
+aiohttp>=3.8.1
+paho-mqtt>=1.6.1
+requests>=2.27.1
+websockets>=10.3
+python-dotenv>=0.20.0

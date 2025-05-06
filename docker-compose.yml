@@ -118,6 +118,36 @@ services:
     restart: unless-stopped
     volumes:
       - redis_data:/data
+  
+  # SwissAirDry ExApp Daemon
+  exapp-daemon:
+    build: 
+      context: ./nextcloud/apps/swissairdry/daemon
+      dockerfile: Dockerfile
+    container_name: swissairdry-exapp-daemon
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - mqtt
+      - nextcloud
+    environment:
+      - APP_ID=swissairdry
+      - APP_VERSION=1.0.0
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8081
+      - APP_SECRET=${EXAPP_SECRET:-change_me_in_production}
+      - NEXTCLOUD_URL=http://nextcloud
+      - API_URL=http://api:5000
+      - SIMPLE_API_URL=http://simple-api:5001
+      - MQTT_BROKER=mqtt
+      - MQTT_PORT=1883
+      - MQTT_WS_PORT=9001
+      - MQTT_USERNAME=${MQTT_USERNAME:-}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-}
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./nextcloud/apps/swissairdry/daemon:/app
 
 volumes:
   postgres_data:
