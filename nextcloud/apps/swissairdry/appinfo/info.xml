@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>swissairdry</id>
+    <name>SwissAirDry</name>
+    <summary>Integration der SwissAirDry-Plattform mit Nextcloud</summary>
+    <description>
+        Diese App ermöglicht die nahtlose Integration zwischen der SwissAirDry-Plattform und Nextcloud.
+        Sie bietet Monitoring und Kontrolle für Trocknungsgeräte, Dashboard-Widgets und Benachrichtigungen.
+    </description>
+    <version>1.0.0</version>
+    <licence>agpl</licence>
+    <author>SwissAirDry Team</author>
+    <namespace>SwissAirDry</namespace>
+    <category>integration</category>
+    <category>tools</category>
+    <category>monitoring</category>
+    <website>https://swissairdry.com</website>
+    <bugs>https://github.com/swissairdry/swissairdry-exapp/issues</bugs>
+    <repository>https://github.com/swissairdry/swissairdry-exapp</repository>
+    <dependencies>
+        <nextcloud min-version="26" max-version="27"/>
+        <php min-version="8.0"/>
+        <database>pgsql</database>
+    </dependencies>
+    <external-app>
+        <docker-install>
+            <registry>ghcr.io</registry>
+            <image>swissairdry/swissairdry-exapp</image>
+            <tag>latest</tag>
+        </docker-install>
+        <system-app>
+            <id>swissairdry-exapp</id>
+            <name>SwissAirDry ExApp</name>
+            <summary>SwissAirDry System ExApp</summary>
+        </system-app>
+    </external-app>
+    <settings>
+        <admin>OCA\SwissAirDry\Settings\Admin</admin>
+        <admin-section>OCA\SwissAirDry\Settings\AdminSection</admin-section>
+    </settings>
+    <navigations>
+        <navigation>
+            <name>SwissAirDry</name>
+            <route>swissairdry.page.index</route>
+        </navigation>
+    </navigations>
+</info>
