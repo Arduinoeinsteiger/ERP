@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwissAirDry ESP32-C6 Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        header {
+            background-color: #004b87;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .status {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        button {
+            background-color: #004b87;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #003b67;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SwissAirDry ESP32-C6</h1>
+        <p>Testinterface für ESP32-C6 Entwicklung</p>
+    </header>
+    
+    <div class="card">
+        <h2>Gerätestatus</h2>
+        <div class="status">
+            <span>Gerät:</span>
+            <span id="device">Laden...</span>
+        </div>
+        <div class="status">
+            <span>Status:</span>
+            <span id="status">Laden...</span>
+        </div>
+        <div class="status">
+            <span>Uptime:</span>
+            <span id="uptime">Laden...</span>
+        </div>
+        <div class="status">
+            <span>Firmware:</span>
+            <span id="firmware">Laden...</span>
+        </div>
+        <button onclick="refreshStatus()">Status aktualisieren</button>
+    </div>
+    
+    <div class="card">
+        <h2>Info</h2>
+        <p>Diese Webseite wird vom ESP32-C6 Mikrocontroller bereitgestellt und dient als einfache Testschnittstelle für die Entwicklung.</p>
+        <p>Mit dieser Testanwendung kann überprüft werden, ob folgende Komponenten funktionieren:</p>
+        <ul>
+            <li>ESP32-C6 WiFi (Access Point)</li>
+            <li>Asynchroner Webserver</li>
+            <li>JSON-API</li>
+            <li>LittleFS Dateisystem</li>
+        </ul>
+    </div>
+    
+    <script>
+        // Gerätestatus abrufen und anzeigen
+        function refreshStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('device').textContent = data.device;
+                    document.getElementById('status').textContent = data.status;
+                    document.getElementById('uptime').textContent = data.uptime + ' Sekunden';
+                    document.getElementById('firmware').textContent = data.firmware;
+                })
+                .catch(err => {
+                    console.error('Fehler beim Abrufen des Status:', err);
+                    document.getElementById('status').textContent = 'Fehler: Keine Verbindung';
+                });
+        }
+        
+        // Beim Laden der Seite Status abrufen
+        window.onload = function() {
+            refreshStatus();
+            
+            // Status alle 10 Sekunden aktualisieren
+            setInterval(refreshStatus, 10000);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+# Dieses Verzeichnis enthält Tests für das SwissAirDry-Projekt

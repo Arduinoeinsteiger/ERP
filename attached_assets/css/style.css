@@ -1,0 +1,241 @@
+/**
+ * SwissAirDry App
+ * 
+ * @author Swiss Air Dry Team <info@swissairdry.com>
+ * @copyright 2025 Swiss Air Dry Team
+ */
+
+/* Allgemeine Stile */
+.app-swissairdry {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Dashboard-Container */
+.dashboard-container {
+    margin: 20px 0;
+    padding: 10px;
+    background-color: var(--color-main-background);
+    border-radius: 3px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.api-status {
+    display: flex;
+    align-items: center;
+}
+
+.status-label {
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--color-warning);
+    margin-right: 8px;
+}
+
+.status-indicator.online {
+    background-color: var(--color-success);
+}
+
+.status-indicator.offline {
+    background-color: var(--color-error);
+}
+
+.refresh-controls {
+    display: flex;
+    align-items: center;
+}
+
+.refresh-button {
+    margin-right: 10px;
+}
+
+/* Dashboard-Kacheln */
+.dashboard-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 10px 0;
+}
+
+.tile {
+    background-color: var(--color-background-hover);
+    border-radius: 3px;
+    padding: 15px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.tile.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+}
+
+.tile .device-name {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.tile .device-status {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.tile .device-status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.tile .device-status-indicator.online {
+    background-color: var(--color-success);
+}
+
+.tile .device-status-indicator.offline {
+    background-color: var(--color-error);
+}
+
+.tile .device-status-indicator.warning {
+    background-color: var(--color-warning);
+}
+
+.tile .device-data {
+    margin-top: 15px;
+}
+
+.tile .data-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.tile .data-label {
+    color: var(--color-text-maxcontrast);
+}
+
+.tile .data-value {
+    font-weight: bold;
+}
+
+.tile .device-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Gerätedetails */
+.device-detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.device-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.device-info {
+    display: flex;
+    gap: 20px;
+}
+
+.device-info-left {
+    flex: 2;
+}
+
+.device-info-right {
+    flex: 3;
+}
+
+.device-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.chart-container {
+    background-color: var(--color-background-hover);
+    border-radius: 3px;
+    padding: 15px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Karte */
+.map-container {
+    height: 600px;
+    margin: 20px 0;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Einstellungen */
+.settings-section {
+    margin-bottom: 20px;
+}
+
+.settings-section h3 {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.settings-item {
+    margin-bottom: 10px;
+}
+
+.settings-item label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.settings-item input[type="text"],
+.settings-item input[type="number"] {
+    width: 100%;
+    max-width: 300px;
+}
+
+.settings-item input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Dark Mode */
+.theme-dark .dashboard-container,
+.theme-dark .tile,
+.theme-dark .chart-container {
+    background-color: var(--color-background-dark);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.theme-dark .dashboard-header,
+.theme-dark .device-header {
+    border-bottom-color: var(--color-border-dark);
+}

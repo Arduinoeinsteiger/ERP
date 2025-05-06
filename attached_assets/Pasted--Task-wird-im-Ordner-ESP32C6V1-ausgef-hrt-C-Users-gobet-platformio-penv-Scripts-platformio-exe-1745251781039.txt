@@ -1,0 +1,153 @@
+ *  Task wird im Ordner ESP32C6V1 ausgeführt: C:\Users\gobet\.platformio\penv\Scripts\platformio.exe run 
+
+Warning! Ignore unknown configuration option `defaulbitte in der ini die bibliotheken mit den giturlt_envs` in section [platformio]
+Processing esp32c6 (platform: espressif32; board: esp32-c6-devkitc-1; framework: arduino)
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif32/esp32-c6-devkitc-1.html
+PLATFORM: Espressif 32 (54.3.20+develop.sha.d47f924) > Espressif ESP32-C6-DevKitC-1
+HARDWARE: ESP32C6 160MHz, 320KB RAM, 8MB Flash
+DEBUG: Current (cmsis-dap) External (cmsis-dap, esp-bridge, esp-builtin, esp-prog, iot-bus-jtag, jlink, minimodule, olimex-arm-usb-ocd, olimex-arm-usb-ocd-h, olimex-arm-usb-tiny-h, olimex-jtag-tiny, tumpa)
+PACKAGES: 
+ - framework-arduinoespressif32 @ 3.2.0 
+ - framework-arduinoespressif32-libs @ 5.4.0+sha.6897a7bf40 
+ - tool-esptoolpy @ 4.8.9 
+ - tool-mklittlefs @ 3.2.0 
+ - tool-riscv32-esp-elf-gdb @ 14.2.0+20240403 
+ - tool-xtensa-esp-elf-gdb @ 14.2.0+20240403 
+ - toolchain-riscv32-esp @ 14.2.0+20241119
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 53 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- ArduinoJson @ 6.21.5
+|-- WiFiManager @ 0.16.0
+|-- OneButton @ 2.6.1
+|-- TFT_eSPI @ 2.5.43
+|-- ESP Async WebServer @ 3.0.6
+|-- ESP32AnalogRead @ 0.2.2
+|-- ESP32 BLE Arduino @ 1.0.1
+|-- ArduinoOTA @ 3.2.0
+|-- DNSServer @ 3.2.0
+|-- ESPmDNS @ 3.2.0
+|-- FS @ 3.2.0
+|-- HTTPClient @ 3.2.0
+|-- LittleFS @ 3.2.0
+|-- Preferences @ 3.2.0
+|-- SD @ 3.2.0
+|-- SPI @ 3.2.0
+|-- WebServer @ 3.2.0
+|-- WiFi @ 3.2.0
+Building in release mode
+Compiling .pio\build\esp32c6\libe7e\AsyncUDP\AsyncUDP.cpp.o
+Compiling .pio\build\esp32c6\lib7c5\AsyncTCP_RP2040W\AsyncPrinter.cpp.o
+Compiling .pio\build\esp32c6\lib7c5\AsyncTCP_RP2040W\AsyncTCP_RP2040W.cpp.o
+Compiling .pio\build\esp32c6\lib7c5\AsyncTCP_RP2040W\AsyncTCP_RP2040W_buffer.cpp.o
+Compiling .pio\build\esp32c6\lib7c5\AsyncTCP_RP2040W\SyncClient.cpp.o
+Compiling .pio\build\esp32c6\lib7c5\AsyncTCP_RP2040W\cbuf.cpp.o
+<command-line>: warning: "ESP32" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "ESP32" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "ESP32" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "ESP32" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "ESP32" redefined
+<command-line>: note: this is the location of the previous definition
+<command-line>: warning: "ESP32" redefined
+<command-line>: note: this is the location of the previous definition
+Compiling .pio\build\esp32c6\lib7c5\AsyncTCP_RP2040W\debug.cpp.o
+In file included from .pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncTCP_RP2040W.cpp:104:
+.pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncTCP_RP2040W.h:73:4: error: #error For RASPBERRY_PI_PICO_W board using CYW43439 WiFi only
+   73 |   #error For RASPBERRY_PI_PICO_W board using CYW43439 WiFi only
+      |    ^~~~~
+In file included from .pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncTCP_RP2040W_buffer.h:60,
+                 from .pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncTCP_RP2040W_buffer.cpp:58:
+.pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncTCP_RP2040W.h:73:4: error: #error For RASPBERRY_PI_PICO_W board using CYW43439 WiFi only
+   73 |   #error For RASPBERRY_PI_PICO_W board using CYW43439 WiFi only
+      |    ^~~~~
+In file included from C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiSTA.h:30,
+                 from C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h:34,
+                 from .pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncTCP_RP2040W.h:84:
+C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiGeneric.h:44:10: fatal error: Network.h: No such file or directory
+
+*****************************************************************
+* Looking for Network.h dependency? Check our library registry!
+*
+* CLI  > platformio lib search "header:Network.h"
+* Web  > https://registry.platformio.org/search?q=header:Network.h
+*
+*****************************************************************
+
+   44 | #include "Network.h"
+      |          ^~~~~~~~~~~
+compilation terminated.
+*** [.pio\build\esp32c6\lib7c5\AsyncTCP_RP2040W\AsyncTCP_RP2040W.cpp.o] Error 1
+In file included from C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiSTA.h:30,
+                 from C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h:34,
+                 from .pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncTCP_RP2040W.h:84:
+C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiGeneric.h:44:10: fatal error: Network.h: No such file or directory
+
+*****************************************************************
+* Looking for Network.h dependency? Check our library registry!
+*
+* CLI  > platformio lib search "header:Network.h"
+* Web  > https://registry.platformio.org/search?q=header:Network.h
+*
+*****************************************************************
+
+   44 | #include "Network.h"
+      |          ^~~~~~~~~~~
+compilation terminated.
+In file included from .pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncPrinter.h:51,
+                 from .pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncPrinter.cpp:51:
+.pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncTCP_RP2040W.h:73:4: error: #error For RASPBERRY_PI_PICO_W board using CYW43439 WiFi only
+   73 |   #error For RASPBERRY_PI_PICO_W board using CYW43439 WiFi only
+      |    ^~~~~
+*** [.pio\build\esp32c6\lib7c5\AsyncTCP_RP2040W\AsyncTCP_RP2040W_buffer.cpp.o] Error 1
+In file included from C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiSTA.h:30,
+                 from C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h:34,
+                 from .pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncTCP_RP2040W.h:84:
+C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiGeneric.h:44:10: fatal error: Network.h: No such file or directory
+
+*****************************************************************
+* Looking for Network.h dependency? Check our library registry!
+*
+* CLI  > platformio lib search "header:Network.h"
+* Web  > https://registry.platformio.org/search?q=header:Network.h
+*
+*****************************************************************
+
+   44 | #include "Network.h"
+      |          ^~~~~~~~~~~
+compilation terminated.
+<command-line>: warning: "ESP32" redefined
+<command-line>: note: this is the location of the previous definition
+*** [.pio\build\esp32c6\lib7c5\AsyncTCP_RP2040W\AsyncPrinter.cpp.o] Error 1
+In file included from .pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/SyncClient.cpp:53:
+.pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncTCP_RP2040W.h:73:4: error: #error For RASPBERRY_PI_PICO_W board using CYW43439 WiFi only
+   73 |   #error For RASPBERRY_PI_PICO_W board using CYW43439 WiFi only
+      |    ^~~~~
+In file included from C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiSTA.h:30,
+                 from C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h:34,
+                 from .pio/libdeps/esp32c6/AsyncTCP_RP2040W/src/AsyncTCP_RP2040W.h:84:
+C:/Users/gobet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiGeneric.h:44:10: fatal error: Network.h: No such file or directory
+
+*****************************************************************
+* Looking for Network.h dependency? Check our library registry!
+*
+* CLI  > platformio lib search "header:Network.h"
+* Web  > https://registry.platformio.org/search?q=header:Network.h
+*
+*****************************************************************
+
+   44 | #include "Network.h"
+      |          ^~~~~~~~~~~
+compilation terminated.
+*** [.pio\build\esp32c6\lib7c5\AsyncTCP_RP2040W\SyncClient.cpp.o] Error 1
+========================================================================================= [FAILED] Took 11.06 seconds =========================================================================================
+
+ *  Der Terminalprozess "C:\Users\gobet\.platformio\penv\Scripts\platformio.exe 'run'" wurde mit folgendem Exitcode beendet: 1. 
+ *  Das Terminal wird von Aufgaben wiederverwendet, drücken Sie zum Schließen eine beliebige Taste. 

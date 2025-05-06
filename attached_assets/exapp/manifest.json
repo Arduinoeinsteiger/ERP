@@ -1,0 +1,52 @@
+{
+  "id": "swissairdry",
+  "name": "Swiss Air Dry",
+  "version": "1.0.0",
+  "description": "Eine modulare IoT-Plattform zur Geräteverwaltung und Überwachung von Trocknungsgeräten",
+  "author": "Swiss Air Dry Team",
+  "category": "monitoring",
+  "homepage": "https://swissairdry.com",
+  "repository": "https://github.com/swissairdry/swissairdry",
+  "issue-tracker": "https://github.com/swissairdry/swissairdry/issues",
+  "license": "AGPL-3.0",
+  "app-type": "web",
+  "main-url": "/index.html",
+  "resourced": {
+    "dashboard": {
+      "type": "external",
+      "url": "/index.html#dashboard",
+      "title": "Swiss Air Dry Dashboard",
+      "icon": "img/swissairdry-logo.svg"
+    },
+    "devices": {
+      "type": "external",
+      "url": "/index.html#devices",
+      "title": "Geräteübersicht",
+      "icon": "img/swissairdry-logo.svg"
+    },
+    "alarms": {
+      "type": "external",
+      "url": "/index.html#alarms",
+      "title": "Alarme & Warnungen",
+      "icon": "img/swissairdry-logo.svg"
+    }
+  },
+  "external-apps": [
+    {
+      "name": "swissairdry-daemon",
+      "type": "daemon",
+      "command": {
+        "command": "python",
+        "args": ["daemon.py"]
+      },
+      "protocols": ["http"],
+      "ports": [8081]
+    }
+  ],
+  "dependencies": {
+    "nextcloud": {
+      "min-version": "26",
+      "max-version": "27"
+    }
+  }
+}

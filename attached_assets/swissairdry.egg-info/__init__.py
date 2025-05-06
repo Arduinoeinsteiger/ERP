@@ -1,0 +1,3 @@
+"""
+swissairdry.egg-info package
+"""

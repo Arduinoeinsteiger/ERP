@@ -1,0 +1,308 @@
+valentino@Debian12:/sde3$ cd /sda3/NextcloudCollaborationreplit && git pull
+Bereits aktuell.
+valentino@Debian12:/sda3/NextcloudCollaborationreplit$ cd /sda3/NextcloudCollaborationreplit && sudo ./install.sh
+[sudo] Passwort für valentino: 
+[INFO] Willkommen bei der SwissAirDry-Installation!
+[INFO] Dieses Skript installiert den gesamten SwissAirDry-Stack mit Nextcloud.
+[INFO] Prüfe und installiere erforderliche Abhängigkeiten...
+[INFO] Prüfe auf curl...
+[ERFOLG] curl ist bereits installiert.
+[INFO] Prüfe auf openssl...
+[ERFOLG] openssl ist bereits installiert.
+[INFO] Prüfe auf docker...
+[ERFOLG] docker ist bereits installiert.
+[INFO] Prüfe auf docker-compose...
+[ERFOLG] docker-compose ist bereits installiert.
+Bitte geben Sie das Installationsverzeichnis an (Standard: /opt/swissairdry): /sda3
+Bitte geben Sie Ihren Domain-Namen an (z.B. swissairdry.example.com): vgnc.org
+[WARNUNG] Das Verzeichnis /sda3 existiert bereits.
+Möchten Sie vorhandene Installationsdaten entfernen und neu installieren? (j/n): j
+[INFO] Entferne vorhandene Daten...
+Stopping nextcloud_app   ... done
+Stopping nextcloud_db    ... done
+Stopping nextcloud_redis ... done
+Removing nextcloud_app   ... done
+Removing nextcloud_db    ... done
+Removing nextcloud_redis ... done
+Network swissairdry_network is external, skipping
+[ERFOLG] Vorhandene Daten wurden entfernt.
+[INFO] Erstelle Docker-Netzwerk...
+[ERFOLG] Docker-Netzwerk 'swissairdry_network' existiert bereits.
+[INFO] Konfiguriere SSL für vgnc.org...
+
+Bitte wählen Sie eine Option für SSL-Zertifikate für vgnc.org:
+1) Vorhandene Zertifikate verwenden (z.B. Let's Encrypt)
+2) Selbstsignierte Zertifikate erstellen (für Entwicklung/Test)
+Option (1-2): 1
+Pfad zu certificate.pem/fullchain.pem: /sda3
+Pfad zu privkey.pem: /sda3
+[FEHLER] Eine oder beide Zertifikatsdateien wurden nicht gefunden.
+valentino@Debian12:/sda3/NextcloudCollaborationreplit$ cd /sda3/NextcloudCollaborationreplit && sudo ./install.sh
+bash: cd: /sda3/NextcloudCollaborationreplit: Datei oder Verzeichnis nicht gefunden
+valentino@Debian12:/sda3/NextcloudCollaborationreplit$ ls -la /sda3
+insgesamt 12
+drwxr-xr-x  3 root root 4096 20. Apr 17:32 .
+drwxr-xr-x 23 root root 4096 20. Apr 17:32 ..
+drwxr-xr-x  3 root root 4096 20. Apr 17:32 nginx
+valentino@Debian12:/sda3/NextcloudCollaborationreplit$ cd /sda3 && sudo git clone https://github.com/Arduinoeinsteiger/NextcloudCollaborationreplit.git
+Klone nach 'NextcloudCollaborationreplit'...
+remote: Enumerating objects: 1290, done.
+remote: Counting objects: 100% (51/51), done.
+remote: Compressing objects: 100% (37/37), done.
+remote: Total 1290 (delta 13), reused 48 (delta 12), pack-reused 1239 (from 1)
+Empfange Objekte: 100% (1290/1290), 153.99 MiB | 10.96 MiB/s, fertig.
+Löse Unterschiede auf: 100% (455/455), fertig.
+valentino@Debian12:/sda3$ cd /sda3/NextcloudCollaborationreplit && sudo chmod +x install.sh && sudo ./install.sh
+[INFO] Willkommen bei der SwissAirDry-Installation!
+[INFO] Dieses Skript installiert den gesamten SwissAirDry-Stack mit Nextcloud.
+[INFO] Prüfe und installiere erforderliche Abhängigkeiten...
+[INFO] Prüfe auf curl...
+[ERFOLG] curl ist bereits installiert.
+[INFO] Prüfe auf openssl...
+[ERFOLG] openssl ist bereits installiert.
+[INFO] Prüfe auf docker...
+[ERFOLG] docker ist bereits installiert.
+[INFO] Prüfe auf docker-compose...
+[ERFOLG] docker-compose ist bereits installiert.
+Bitte geben Sie das Installationsverzeichnis an (Standard: /opt/swissairdry): /sda3
+Bitte geben Sie Ihren Domain-Namen an (z.B. swissairdry.example.com): vgnc.org
+[WARNUNG] Das Verzeichnis /sda3 existiert bereits.
+Möchten Sie vorhandene Installationsdaten entfernen und neu installieren? (j/n): j
+[INFO] Entferne vorhandene Daten...
+[ERFOLG] Vorhandene Daten wurden entfernt.
+[INFO] Erstelle Docker-Netzwerk...
+[ERFOLG] Docker-Netzwerk 'swissairdry_network' existiert bereits.
+[INFO] Konfiguriere SSL für vgnc.org...
+
+Bitte wählen Sie eine Option für SSL-Zertifikate für vgnc.org:
+1) Vorhandene Zertifikate verwenden (z.B. Let's Encrypt)
+2) Selbstsignierte Zertifikate erstellen (für Entwicklung/Test)
+Option (1-2): 2
+[INFO] Erstelle selbstsignierte Zertifikate...
+...+.....+....+.....+..........+..+...+....+.....+.+.....+......+.+........+............+.......+...+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*.+............+....+......+.....+.+..+.+......+...+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*.+....+..+................+...+..+..........+..+.+...........+......+....+...+...+.....+.........+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+............+.....+....+...+......+..+.............+..+...+....+.....+.+...............+..+...+.......+..+.............+........+....+..+...+...+.......+.....+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*...........+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*...+.........+...+..+.+...+..+.........+...................+..+...+....+........+.......+...+...+......+........+......+....+..+......+...+....+......+...........+.+........................+........+.......+.....+.+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-----
+[ERFOLG] Selbstsignierte Zertifikate erfolgreich erstellt.
+Möchten Sie Cloudflare DNS für Ihre Domain konfigurieren? (j/n): j
+[INFO] Konfiguriere Cloudflare DNS für Domain vgnc.org...
+[INFO] Für die automatische Konfiguration von Cloudflare DNS-Einträgen wird ein API-Token benötigt.
+[INFO] Dieses Token benötigt Berechtigungen für 'Zone:DNS:Edit' und 'Zone:Zone:Read'.
+[INFO] Sie können ein Token erstellen unter: https://dash.cloudflare.com/profile/api-tokens
+Möchten Sie Cloudflare automatisch konfigurieren? (j/n): j
+Bitte geben Sie Ihren Cloudflare API-Token ein: 
+Bitte geben Sie Ihre Cloudflare Zone ID ein (zu finden in der Übersicht Ihrer Domain): 4146eba4d0d4883f46a1256f33975c4f
+[INFO] Verwende IP-Adresse: 83.78.73.133
+[INFO] Erstelle/Aktualisiere DNS-Eintrag für @.vgnc.org...
+false
+[ERFOLG] DNS-Eintrag für @.vgnc.org erstellt.
+[INFO] Erstelle/Aktualisiere DNS-Eintrag für api.vgnc.org...
+false
+[ERFOLG] DNS-Eintrag für api.vgnc.org erstellt.
+[INFO] Erstelle/Aktualisiere DNS-Eintrag für mqtt.vgnc.org...
+false
+[ERFOLG] DNS-Eintrag für mqtt.vgnc.org erstellt.
+[INFO] Erstelle/Aktualisiere DNS-Eintrag für www.vgnc.org...
+false
+[ERFOLG] DNS-Eintrag für www.vgnc.org erstellt.
+[ERFOLG] Cloudflare DNS-Einträge wurden konfiguriert.
+[INFO] Es kann bis zu 5 Minuten dauern, bis die Änderungen wirksam werden.
+Möchten Sie eine Hetzner Cloud Server-Konfiguration durchführen? (j/n): n
+[INFO] Erstelle Nextcloud Docker Compose Konfiguration...
+[ERFOLG] Nextcloud Docker Compose Konfiguration erstellt in /sda3/nextcloud/docker-compose.yml
+[INFO] Erstelle SwissAirDry Docker Compose Konfiguration...
+[ERFOLG] SwissAirDry Docker Compose Konfiguration erstellt in /sda3/docker-compose.yml
+[INFO] Erstelle Umgebungsvariablen-Datei mit automatischer Port-Erkennung...
+[INFO] Prüfe auf verfügbare Ports...
+[ERFOLG] Umgebungsvariablen-Datei erstellt in /sda3/.env
+[INFO] Die folgenden Ports werden verwendet:
+[INFO] HTTP: 80
+[INFO] HTTPS: 443
+[INFO] Nextcloud: 8080
+[INFO] PostgreSQL: 5432
+[INFO] MQTT: 1883
+[INFO] MQTT (SSL): 8883
+[WARNUNG] WICHTIG: Bewahren Sie die generierten Passwörter sicher auf!
+[WARNUNG] Nextcloud Admin-Passwort: bVZvwkUDO7zkP4Al
+[WARNUNG] MySQL Root-Passwort: iHwCzxlLJJnWU8vz
+[WARNUNG] PostgreSQL Passwort: 1daVUkgY55pLHq2O
+[INFO] Möchten Sie vor dem Start einen Diagnose-Modus ausführen, um mögliche Probleme zu erkennen? (j/n): 
+j
+[INFO] Starte Diagnose-Modus...
+[INFO] 1. Überprüfe Docker-Installation...
+Docker version 20.10.24+dfsg1, build 297e128
+[ERFOLG] Docker ist installiert.
+[ERFOLG] Docker-Dienst läuft.
+[INFO] 2. Überprüfe Docker Compose Installation...
+docker-compose version 1.29.2, build unknown
+[ERFOLG] Docker Compose ist installiert.
+[INFO] 3. Überprüfe Netzwerk-Ports...
+[ERFOLG] Port 80 ist frei.
+[ERFOLG] Port 443 ist frei.
+[ERFOLG] Port 1883 ist frei.
+[ERFOLG] Port 8883 ist frei.
+[ERFOLG] Port 5432 ist frei.
+[ERFOLG] Port 8080 ist frei.
+[INFO] 4. Überprüfe Docker-Netzwerke...
+NETWORK ID     NAME                                                    DRIVER    SCOPE
+608656ef7d65   bridge                                                  bridge    local
+2e426ec3b72e   host                                                    host      local
+b5f82dc602d4   none                                                    null      local
+71f096d3fbe1   sde3_default                                            bridge    local
+0787817aae63   sde3_nextcloudcollaborationreplit_swissairdry-network   bridge    local
+86946aac872a   sde3_swissairdry_network                                bridge    local
+0e9854131e71   swissairdry_default                                     bridge    local
+d21afd5263e9   swissairdry_komplettpaket_default                       bridge    local
+cc1b4abf86b6   swissairdry_network                                     bridge    local
+[INFO] 5. Überprüfe Installation Directory...
+[ERFOLG] Installationsverzeichnis /sda3 existiert.
+[ERFOLG] docker-compose.yml ist vorhanden.
+[ERFOLG] .env-Datei ist vorhanden.
+[INFO] 6. Sammle vollständige Diagnose-Informationen...
+[INFO] Sammle Diagnose-Informationen in /sda3/diagnostics_20250420_173859.txt...
+[ERFOLG] Diagnose-Informationen wurden in /sda3/diagnostics_20250420_173859.txt gespeichert.
+[INFO] Bitte teilen Sie diese Datei mit dem Support-Team, wenn Sie Hilfe benötigen.
+[INFO] Diagnose abgeschlossen. Bitte überprüfen Sie die oben genannten Probleme.
+[INFO] Möchten Sie die Dienste jetzt starten? (j/n): 
+j
+[INFO] Starte SwissAirDry-Dienste...
+Building api
+Sending build context to Docker daemon  3.072kB
+Step 1/7 : FROM python:3.11-slim
+ ---> 0334b36fd0eb
+Step 2/7 : WORKDIR /app
+ ---> Using cache
+ ---> 0cd236ef2067
+Step 3/7 : COPY requirements.txt .
+ ---> Using cache
+ ---> 4b25f3a5fe53
+Step 4/7 : RUN pip install --no-cache-dir -r requirements.txt
+ ---> Running in 526812f81ff6
+Collecting fastapi==0.104.1 (from -r requirements.txt (line 1))
+  Downloading fastapi-0.104.1-py3-none-any.whl.metadata (24 kB)
+Collecting uvicorn==0.24.0 (from -r requirements.txt (line 2))
+  Downloading uvicorn-0.24.0-py3-none-any.whl.metadata (6.4 kB)
+Collecting pydantic==2.4.2 (from -r requirements.txt (line 3))
+  Downloading pydantic-2.4.2-py3-none-any.whl.metadata (158 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 158.6/158.6 kB 9.6 MB/s eta 0:00:00
+Collecting sqlalchemy==2.0.23 (from -r requirements.txt (line 4))
+  Downloading SQLAlchemy-2.0.23-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.6 kB)
+Collecting psycopg2-binary==2.9.9 (from -r requirements.txt (line 5))
+  Downloading psycopg2_binary-2.9.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.4 kB)
+ERROR: Could not find a version that satisfies the requirement paho-mqtt==2.2.1 (from versions: 0.4.90, 0.4.91, 0.4.92, 0.4.94, 0.9, 0.9.1, 1.0, 1.1, 1.2, 1.2.1, 1.2.2, 1.2.3, 1.3.0, 1.3.1, 1.4.0, 1.5.0, 1.5.1, 1.6.0, 1.6.1, 2.0.0rc2, 2.0.0, 2.1.0)
+ERROR: No matching distribution found for paho-mqtt==2.2.1
+
+[notice] A new release of pip is available: 24.0 -> 25.0.1
+[notice] To update, run: pip install --upgrade pip
+The command '/bin/sh -c pip install --no-cache-dir -r requirements.txt' returned a non-zero code: 1
+ERROR: Service 'api' failed to build : Build failed
+[INFO] Warte auf den Start der SwissAirDry-Dienste...
+[WARNUNG] Einige SwissAirDry-Dienste konnten nicht gestartet werden. Führen Sie 'cd /sda3 && docker-compose logs' aus, um Details zu sehen.
+Creating nextcloud_db    ... done
+Creating nextcloud_redis ... done
+Creating nextcloud_app   ... done
+[INFO] Warte auf den Start von Nextcloud...
+[ERFOLG] Nextcloud erfolgreich gestartet.
+[INFO] Führe Verbindungstests durch...
+[INFO] Teste Verbindung zu HTTP Server (localhost:80)...
+[FEHLER] Verbindung zu HTTP Server (localhost:80) fehlgeschlagen.
+[INFO] Teste Verbindung zu HTTPS Server (localhost:443)...
+[FEHLER] Verbindung zu HTTPS Server (localhost:443) fehlgeschlagen.
+[INFO] Teste Verbindung zu MQTT Broker (localhost:1883)...
+[FEHLER] Verbindung zu MQTT Broker (localhost:1883) fehlgeschlagen.
+[INFO] Teste Verbindung zu PostgreSQL (localhost:5432)...
+[FEHLER] Verbindung zu PostgreSQL (localhost:5432) fehlgeschlagen.
+[ERFOLG] Alle Dienste wurden gestartet!
+[INFO] SwissAirDry ist verfügbar unter: https://vgnc.org
+[INFO] Bei Verwendung angepasster Ports: https://vgnc.org:443
+[INFO] SwissAirDry API ist verfügbar unter: https://api.vgnc.org
+[INFO] Nextcloud ist verfügbar unter: https://vgnc.org
+[ERFOLG] Installation abgeschlossen!
+[INFO] Bitte sehen Sie in die Datei /sda3/.env für die generierten Passwörter.
+[INFO] Falls Probleme auftreten:
+[INFO] 1. Überprüfen Sie die Logs mit 'docker-compose logs' im jeweiligen Verzeichnis
+[INFO] 2. Führen Sie das Diagnose-Tool mit dem Befehl aus: /sda3/diagnose.sh
+[INFO] 3. Prüfen Sie, ob alle Ports korrekt konfiguriert sind in der Datei /sda3/.env
+[INFO] 4. Für detaillierte Fehlerbehebung konsultieren Sie die FEHLERBEHEBUNG.md
+[INFO] Für weitere Informationen und Fehlerbehebung besuchen Sie: https://github.com/swissairdry/docs
+valentino@Debian12:/sda3/NextcloudCollaborationreplit$ cd /sda3 && docker-compose logs
+Attaching to 
+valentino@Debian12:/sda3$ cd /sda3/nextcloud && docker-compose logs
+Attaching to nextcloud_app, nextcloud_db, nextcloud_redis
+db_1     | 2025-04-20 15:39:33+00:00 [Note] [Entrypoint]: Entrypoint script for MariaDB Server 1:10.6.21+maria~ubu2004 started.
+db_1     | 2025-04-20 15:39:33+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+db_1     | 2025-04-20 15:39:33+00:00 [Note] [Entrypoint]: Entrypoint script for MariaDB Server 1:10.6.21+maria~ubu2004 started.
+db_1     | 2025-04-20 15:39:33+00:00 [Note] [Entrypoint]: Initializing database files
+db_1     | 2025-04-20 15:39:41+00:00 [Note] [Entrypoint]: Database files initialized
+db_1     | 2025-04-20 15:39:41+00:00 [Note] [Entrypoint]: Starting temporary server
+db_1     | 2025-04-20 15:39:41+00:00 [Note] [Entrypoint]: Waiting for server startup
+db_1     | 2025-04-20 15:39:41 0 [Note] Starting MariaDB 10.6.21-MariaDB-ubu2004 source revision 066e8d6aeabc13242193780341e0f845528105de server_uid DQRAoqu8jzt08SXY9m4wqVREDK0= as process 102
+db_1     | 2025-04-20 15:39:41 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+db_1     | 2025-04-20 15:39:41 0 [Note] InnoDB: Number of pools: 1
+db_1     | 2025-04-20 15:39:41 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+db_1     | 2025-04-20 15:39:41 0 [Note] mariadbd: O_TMPFILE is not supported on /tmp (disabling future attempts)
+db_1     | 2025-04-20 15:39:41 0 [Note] InnoDB: Using Linux native AIO
+db_1     | 2025-04-20 15:39:41 0 [Note] InnoDB: Initializing buffer pool, total size = 134217728, chunk size = 134217728
+db_1     | 2025-04-20 15:39:41 0 [Note] InnoDB: Completed initialization of buffer pool
+db_1     | 2025-04-20 15:39:42 0 [Note] InnoDB: 128 rollback segments are active.
+db_1     | 2025-04-20 15:39:42 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+db_1     | 2025-04-20 15:39:42 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+db_1     | 2025-04-20 15:39:42 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+db_1     | 2025-04-20 15:39:42 0 [Note] InnoDB: 10.6.21 started; log sequence number 42514; transaction id 14
+db_1     | 2025-04-20 15:39:42 0 [Note] Plugin 'FEEDBACK' is disabled.
+db_1     | 2025-04-20 15:39:42 0 [Note] mariadbd: ready for connections.
+db_1     | Version: '10.6.21-MariaDB-ubu2004'  socket: '/run/mysqld/mysqld.sock'  port: 0  mariadb.org binary distribution
+db_1     | 2025-04-20 15:39:42+00:00 [Note] [Entrypoint]: Temporary server started.
+db_1     | 2025-04-20 15:39:47+00:00 [Note] [Entrypoint]: Creating database nextcloud
+db_1     | 2025-04-20 15:39:47+00:00 [Note] [Entrypoint]: Creating user nextcloud
+db_1     | 2025-04-20 15:39:47+00:00 [Note] [Entrypoint]: Giving user nextcloud access to schema nextcloud
+db_1     | 2025-04-20 15:39:47+00:00 [Note] [Entrypoint]: Securing system users (equivalent to running mysql_secure_installation)
+db_1     | 
+db_1     | 2025-04-20 15:39:48+00:00 [Note] [Entrypoint]: Stopping temporary server
+db_1     | 2025-04-20 15:39:48 0 [Note] mariadbd (initiated by: unknown): Normal shutdown
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: FTS optimize thread exiting.
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Starting shutdown...
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Dumping buffer pool(s) to /var/lib/mysql/ib_buffer_pool
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Buffer pool(s) dump completed at 250420 15:39:48
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Shutdown completed; log sequence number 42526; transaction id 15
+db_1     | 2025-04-20 15:39:48 0 [Note] mariadbd: Shutdown complete
+db_1     | 2025-04-20 15:39:48+00:00 [Note] [Entrypoint]: Temporary server stopped
+db_1     | 
+db_1     | 2025-04-20 15:39:48+00:00 [Note] [Entrypoint]: MariaDB init process done. Ready for start up.
+db_1     | 
+db_1     | 2025-04-20 15:39:48 0 [Note] Starting MariaDB 10.6.21-MariaDB-ubu2004 source revision 066e8d6aeabc13242193780341e0f845528105de server_uid DQRAoqu8jzt08SXY9m4wqVREDK0= as process 1
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Number of pools: 1
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+db_1     | 2025-04-20 15:39:48 0 [Note] mariadbd: O_TMPFILE is not supported on /tmp (disabling future attempts)
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Using Linux native AIO
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Initializing buffer pool, total size = 134217728, chunk size = 134217728
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Completed initialization of buffer pool
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: 128 rollback segments are active.
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: 10.6.21 started; log sequence number 42526; transaction id 14
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+db_1     | 2025-04-20 15:39:48 0 [Note] Plugin 'FEEDBACK' is disabled.
+db_1     | 2025-04-20 15:39:48 0 [Note] InnoDB: Buffer pool(s) load completed at 250420 15:39:48
+db_1     | 2025-04-20 15:39:48 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+db_1     | 2025-04-20 15:39:48 0 [Note] Server socket created on IP: '0.0.0.0'.
+db_1     | 2025-04-20 15:39:48 0 [Note] Server socket created on IP: '::'.
+app_1    | Configuring Redis as session handler
+app_1    | Initializing nextcloud 31.0.2.1 ...
+app_1    | New nextcloud instance
+app_1    | Installing with MySQL database
+app_1    | => Searching for scripts (*.sh) to run, located in the folder: /docker-entrypoint-hooks.d/pre-installation
+app_1    | Starting nextcloud installation
+redis_1  | 1:C 20 Apr 2025 15:39:33.355 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+redis_1  | 1:C 20 Apr 2025 15:39:33.355 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+redis_1  | 1:C 20 Apr 2025 15:39:33.355 * Redis version=7.4.2, bits=64, commit=00000000, modified=0, pid=1, just started
+redis_1  | 1:C 20 Apr 2025 15:39:33.355 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+redis_1  | 1:M 20 Apr 2025 15:39:33.355 * monotonic clock: POSIX clock_gettime
+redis_1  | 1:M 20 Apr 2025 15:39:33.356 * Running mode=standalone, port=6379.
+redis_1  | 1:M 20 Apr 2025 15:39:33.356 * Server initialized
+redis_1  | 1:M 20 Apr 2025 15:39:33.356 * Ready to accept connections tcp
+db_1     | 2025-04-20 15:39:48 0 [Note] mariadbd: ready for connections.
+db_1     | Version: '10.6.21-MariaDB-ubu2004'  socket: '/run/mysqld/mysqld.sock'  port: 3306  mariadb.org binary distribution
+valentino@Debian12:/sda3/nextcloud$ 

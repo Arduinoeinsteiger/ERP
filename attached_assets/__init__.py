@@ -1,0 +1,3 @@
+"""
+Initializing nextcloud module
+"""

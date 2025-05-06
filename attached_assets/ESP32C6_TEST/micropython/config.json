@@ -1,0 +1,69 @@
+{
+  "device": {
+    "id": "ESP32S6_001",
+    "name": "SwissAirDry Sensor 1",
+    "type": "environmental",
+    "firmware_version": "1.0.0"
+  },
+  "wifi": {
+    "ssid": "SwissAirDry-Network",
+    "password": "SwissAirDry2025",
+    "timeout": 20,
+    "reconnect_interval": 30
+  },
+  "mqtt": {
+    "broker": "192.168.1.100",
+    "port": 1883,
+    "username": "",
+    "password": "",
+    "keepalive": 30,
+    "topic_prefix": "swissairdry"
+  },
+  "sensors": {
+    "temperature": {
+      "enabled": true,
+      "pin": 12,
+      "type": "DHT22",
+      "calibration_offset": 0.0
+    },
+    "humidity": {
+      "enabled": true,
+      "pin": 12,
+      "type": "DHT22",
+      "calibration_offset": 0.0
+    },
+    "battery": {
+      "enabled": true,
+      "pin": 33,
+      "type": "ADC",
+      "voltage_factor": 2.0,
+      "min_voltage": 3.2,
+      "max_voltage": 4.2
+    }
+  },
+  "reporting": {
+    "interval": 60,
+    "batch_size": 1,
+    "include_timestamp": true
+  },
+  "power": {
+    "low_power_mode": false,
+    "sleep_time": 300,
+    "battery_threshold": 10
+  },
+  "display": {
+    "enabled": false,
+    "type": "SSD1306",
+    "i2c_scl": 22,
+    "i2c_sda": 21,
+    "address": "0x3C",
+    "width": 128,
+    "height": 64
+  },
+  "debug": {
+    "level": "info",
+    "log_to_file": false,
+    "log_file": "log.txt",
+    "max_log_size": 10240
+  }
+}

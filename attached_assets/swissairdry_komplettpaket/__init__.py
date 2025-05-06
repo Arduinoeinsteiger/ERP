@@ -1,0 +1,3 @@
+"""
+swissairdry_komplettpaket package
+"""

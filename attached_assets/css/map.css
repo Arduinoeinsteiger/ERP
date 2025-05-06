@@ -1,0 +1,239 @@
+/**
+ * SwissAirDry App - Kartenstil
+ * 
+ * @author Swiss Air Dry Team <info@swissairdry.com>
+ * @copyright 2025 Swiss Air Dry Team
+ */
+
+.map-container {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.devices-map {
+    flex: 3;
+    height: 600px;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    background-color: #f5f5f5;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.map-sidebar {
+    flex: 1;
+    min-width: 250px;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.map-device-list {
+    background-color: var(--color-main-background-translucent);
+    border-radius: 3px;
+    padding: 10px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.map-device-item {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border-radius: 3px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+.map-device-item:hover {
+    background-color: var(--color-background-hover);
+}
+
+.map-device-item.selected {
+    background-color: var(--color-primary-light);
+}
+
+.map-device-status {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.map-device-status.online {
+    background-color: var(--color-success);
+}
+
+.map-device-status.offline {
+    background-color: var(--color-error);
+}
+
+.map-device-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.map-device-filter {
+    margin-bottom: 10px;
+}
+
+.map-device-filter input {
+    width: 100%;
+    padding: 5px;
+}
+
+.map-device-details {
+    background-color: var(--color-main-background-translucent);
+    border-radius: 3px;
+    padding: 10px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.device-info-line {
+    margin-bottom: 5px;
+    display: flex;
+}
+
+.device-info-label {
+    font-weight: bold;
+    min-width: 100px;
+}
+
+.map-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 10;
+}
+
+.map-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+    background-color: var(--color-main-background-translucent);
+    border-radius: 3px;
+    padding: 10px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.map-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.map-control-group label {
+    font-weight: bold;
+}
+
+.map-view-buttons {
+    display: flex;
+}
+
+.map-view-btn {
+    padding: 5px 10px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-main-background);
+    cursor: pointer;
+}
+
+.map-view-btn:first-child {
+    border-radius: 3px 0 0 3px;
+}
+
+.map-view-btn:last-child {
+    border-radius: 0 3px 3px 0;
+}
+
+.map-view-btn.active {
+    background-color: var(--color-primary);
+    color: var(--color-primary-text);
+    border-color: var(--color-primary);
+}
+
+.map-layer-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Marker Info Window Styles */
+.map-info-window {
+    padding: 5px;
+    max-width: 300px;
+}
+
+.info-window-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.info-window-status {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.info-window-status.online {
+    background-color: #28a745;
+}
+
+.info-window-status.offline {
+    background-color: #dc3545;
+}
+
+.info-window-title {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.info-window-body {
+    font-size: 12px;
+}
+
+.info-window-property {
+    margin-bottom: 5px;
+}
+
+.info-window-property-label {
+    font-weight: bold;
+}
+
+.info-window-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Dark mode adjustments */
+.theme-dark .devices-map {
+    background-color: #2e2e2e;
+}
+
+.theme-dark .map-loading {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.theme-dark .map-view-btn {
+    background-color: var(--color-background-dark);
+    border-color: var(--color-border-dark);
+}
+
+.theme-dark .map-view-btn.active {
+    background-color: var(--color-primary-element);
+}

@@ -1,0 +1,25 @@
+include README.md
+include SECURITY.md
+include LICENSE
+include pyproject.toml
+include setup.py
+include .flake8
+
+recursive-include swissairdry/api/app/templates *.html
+recursive-include swissairdry/api/app/static *.css *.js *.png *.jpg *.svg
+recursive-include swissairdry/mqtt *.conf
+recursive-include swissairdry/nextcloud *.xml *.json *.php
+recursive-include swissairdry *.md *.txt *.json *.yaml *.yml
+
+prune tests
+prune .github
+prune build
+prune dist
+prune *.egg-info
+prune */__pycache__
+prune */*/__pycache__
+prune */*/*/__pycache__
+recursive-include swissairdry/api/templates *
+recursive-include swissairdry/api/static *
+recursive-include swissairdry *.py
+recursive-include tests *.py

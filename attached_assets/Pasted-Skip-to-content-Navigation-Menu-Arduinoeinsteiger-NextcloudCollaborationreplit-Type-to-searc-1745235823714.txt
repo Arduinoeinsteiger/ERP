@@ -1,0 +1,75 @@
+Skip to content
+Navigation Menu
+Arduinoeinsteiger
+NextcloudCollaborationreplit
+
+Type / to search
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security
+35
+Insights
+Settings
+Security: Arduinoeinsteiger/NextcloudCollaborationreplit
+Security Navigation
+Reporting
+Vulnerability alerts
+Dependabot alerts
+Dependency files checked 4 minutes ago
+Give feedback
+Auto-triage your alerts
+Control how Dependabot opens pull requests, ignores false positives and snoozes alerts. Rules can be enforced at the organization level. Free for open source and available for private repos through GitHub Advanced Security.
+
+Learn more about auto-triage
+
+
+is:open 
+
+ 
+
+Jinja has a sandbox breakout through indirect reference to format method Moderate
+#157 opened 18 hours ago • Detected in jinja2 (pip) • swissairdry/nextcloud/requirements.txt
+
+Requests `Session` object does not verify requests after making first request with verify=False Moderate
+#156 opened 18 hours ago • Detected in requests (pip) • swissairdry/nextcloud/requirements.txt
+
+Jinja vulnerable to HTML attribute injection when passing user input as keys to xmlattr filter Moderate
+#155 opened 18 hours ago • Detected in Jinja2 (pip) • swissairdry/nextcloud/requirements.txt
+
+Jinja vulnerable to HTML attribute injection when passing user input as keys to xmlattr filter Moderate
+#154 opened 18 hours ago • Detected in jinja2 (pip) • swissairdry/nextcloud/requirements.txt
+
+Jinja2 vulnerable to sandbox breakout through attr filter selecting format method Moderate
+#108 opened 2 days ago • Detected in Jinja2 (pip) • swissairdry/api/requirements.txt
+
+Jinja has a sandbox breakout through malicious filenames Moderate
+#105 opened 2 days ago • Detected in jinja2 (pip) • swissairdry/api/requirements.txt
+
+Jinja has a sandbox breakout through indirect reference to format method Moderate
+#104 opened 2 days ago • Detected in jinja2 (pip) • swissairdry/api/requirements.txt
+
+Requests `Session` object does not verify requests after making first request with verify=False Moderate
+#102 opened 2 days ago • Detected in requests (pip) • swissairdry/api/requirements.txt
+
+Jinja vulnerable to HTML attribute injection when passing user input as keys to xmlattr filter Moderate
+#101 opened 2 days ago • Detected in Jinja2 (pip) • swissairdry/api/requirements.txt
+
+Jinja vulnerable to HTML attribute injection when passing user input as keys to xmlattr filter Moderate
+#96 opened 2 days ago • Detected in jinja2 (pip) • swissairdry/api/requirements.txt
+   
+ ProTip! See auto-dismissed alerts with resolution:auto-dismissed.
+Footer
+© 2025 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+Dependabot alerts · Arduinoeinsteiger/NextcloudCollaborationreplit 

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwissAirDry ExApp</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Nextcloud Icons und Styles, wenn in der Nextcloud-Umgebung verfügbar -->
+  <link rel="stylesheet" href="/core/css/icons.css" onload="this.media='all'">
+  
+  <!-- Fallback Icons, falls Nextcloud-Icons nicht verfügbar sind -->
+  <style>
+    /* Minimal Icon-Set für Demo außerhalb von Nextcloud */
+    @font-face {
+      font-family: 'Nextcloud-Icons';
+      src: url('data:font/woff2;charset=utf-8;base64,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') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+    
+    /* Fallback Icon-Definitionen */
+    .icon-dashboard:before { content: '\e900'; }
+    .icon-category-monitoring:before { content: '\e901'; }
+    .icon-alert:before { content: '\e902'; }
+    .icon-settings:before { content: '\e903'; }
+    .icon-refresh:before { content: '\e904'; }
+    .icon-loading:before { content: '\e905'; }
+    .icon-checkmark:before { content: '\e906'; }
+    .icon-error:before { content: '\e907'; }
+    .icon-warning:before { content: '\e908'; }
+    .icon-info:before { content: '\e909'; }
+    .icon-temperature:before { content: '\e90a'; }
+    .icon-humidity:before { content: '\e90b'; }
+    .icon-pressure:before { content: '\e90c'; }
+    .icon-battery:before { content: '\e90d'; }
+    .icon-battery-low:before { content: '\e90e'; }
+    .icon-connection-error:before { content: '\e90f'; }
+    .icon-app:before { content: '\e910'; }
+    
+    /* Grundlegende Icon-Styles */
+    [class^="icon-"], [class*=" icon-"] {
+      font-family: 'Nextcloud-Icons' !important;
+      speak: never;
+      font-style: normal;
+      font-weight: normal;
+      font-variant: normal;
+      text-transform: none;
+      line-height: 1;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+</head>
+<body>
+  <div id="swissairdry-app">
+    <!-- Der App-Inhalt wird durch JavaScript dynamisch generiert -->
+    <div class="sard-loading-initial">
+      <div class="sard-loading">
+        <span class="icon-loading"></span>
+        <span>SwissAirDry ExApp wird geladen...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demo-API für Entwicklung und Tests -->
+  <script src="demo-api.js"></script>
+  
+  <!-- Hauptfunktionalität -->
+  <script src="index.js"></script>
+  
+  <!-- Debug-Tools (nur im Demo-Modus) -->
+  <script>
+    // URL-Parameter prüfen für Demo-Modus
+    if (window.location.search.includes('demo=true')) {
+      // Debug-Panel hinzufügen
+      const debugPanel = document.createElement('div');
+      debugPanel.style.position = 'fixed';
+      debugPanel.style.bottom = '10px';
+      debugPanel.style.right = '10px';
+      debugPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+      debugPanel.style.color = 'white';
+      debugPanel.style.padding = '10px';
+      debugPanel.style.borderRadius = '5px';
+      debugPanel.style.zIndex = '9999';
+      debugPanel.style.fontSize = '12px';
+      debugPanel.innerHTML = '<div>Demo-Modus aktiv</div><div>API-Anfragen werden simuliert</div>';
+      document.body.appendChild(debugPanel);
+      
+      // Console-Logs für API-Aufrufe
+      console.info('SwissAirDry ExApp läuft im Demo-Modus');
+      console.info('Alle API-Anfragen werden mit simulierten Daten beantwortet');
+      console.info('Demo-Geräte: ' + demoApi.devices.length);
+      console.info('Demo-Alarme: ' + demoApi.alarms.length);
+    }
+  </script>
+</body>
+</html>

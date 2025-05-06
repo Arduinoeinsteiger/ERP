@@ -1,0 +1,41 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Installiere Abhängigkeiten
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libpq-dev \
+    gcc \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Kopiere App-Dateien
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . /app/
+
+# Setze Umgebungsvariablen
+ENV APP_ID=swissairdry \
+    APP_VERSION=1.0.0 \
+    APP_HOST=0.0.0.0 \
+    APP_PORT=8081 \
+    NEXTCLOUD_URL="" \
+    APP_SECRET="" \
+    API_URL="" \
+    SIMPLE_API_URL="" \
+    MQTT_BROKER="" \
+    MQTT_PORT=1883 \
+    MQTT_WS_PORT=9001 \
+    DB_HOST="" \
+    DB_PORT=5432 \
+    DB_USER="" \
+    DB_PASSWORD="" \
+    DB_NAME=""
+
+# Port-Freigabe
+EXPOSE 8081
+
+# Starte den ExApp-Daemon
+CMD ["python", "daemon.py"]

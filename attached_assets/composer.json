@@ -1,0 +1,17 @@
+{
+    "name": "swissairdry/nextcloud-app",
+    "description": "SwissAirDry Nextcloud Integration",
+    "type": "project",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Swiss Air Dry Team",
+            "email": "info@swissairdry.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.4",
+        "guzzlehttp/guzzle": "^7.0"
+    }
+}

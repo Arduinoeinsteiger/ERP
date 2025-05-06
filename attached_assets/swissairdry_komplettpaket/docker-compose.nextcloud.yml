@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    restart: always
+    expose:
+      - 80
+    volumes:
+      - nextcloud:/var/www/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      - MYSQL_PASSWORD=nextcloud
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=nextcloud_db
+      - NEXTCLOUD_ADMIN_USER=admin
+      - NEXTCLOUD_ADMIN_PASSWORD=admin
+      - NEXTCLOUD_TRUSTED_DOMAINS=vgnc.org
+      - APACHE_DISABLE_REWRITE_IP=1
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_UPLOAD_LIMIT=10G
+      - PHP_MAX_EXECUTION_TIME=3600
+      - OVERWRITEPROTOCOL=https
+      - OVERWRITEHOST=vgnc.org
+      - OVERWRITEWEBROOT=/
+      - TRUSTED_PROXIES=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22
+    depends_on:
+      - nextcloud_db
+      - socket_proxy
+
+  nginx:
+    image: nginx:latest
+    container_name: nextcloud_nginx
+    restart: always
+    ports:
+      - 8080:8080
+      - 8443:8443
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - nextcloud
+
+  nextcloud_db:
+    image: mariadb:10.6
+    container_name: nextcloud_db
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --max-allowed-packet=128M
+
+  socket_proxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: nextcloud-aio-docker-socket-proxy
+    restart: always
+    privileged: true
+    environment:
+      - CONTAINERS=1
+      - POST=1
+      - INFO=1
+      - IMAGES=1
+      - VERSION=1
+      - AUTH=admin:admin123
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "2375:2375"
+
+volumes:
+  nextcloud:
+  db:

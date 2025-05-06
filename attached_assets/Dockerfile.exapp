@@ -1,0 +1,37 @@
+FROM php:8.1-apache
+
+WORKDIR /app
+
+# Installiere Abhängigkeiten
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    libxml2-dev \
+    curl \
+    unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd mysqli pdo_mysql zip soap opcache \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installiere Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Kopiere Anwendungscode
+COPY . /app
+COPY apache.conf /etc/apache2/sites-available/000-default.conf
+
+# Installiere PHP-Abhängigkeiten
+RUN composer install --no-dev --optimize-autoloader
+
+# Konfiguriere Apache
+RUN a2enmod rewrite
+RUN chown -R www-data:www-data /app
+
+# Port-Freigabe
+EXPOSE 8080
+
+# Starte den Apache-Server
+CMD ["apache2-foreground"]

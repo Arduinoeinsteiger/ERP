@@ -1,0 +1,82 @@
+Some checks were not successful
+20 failing and 7 successful checks
+
+CI Build Fix / Fix Python 3.9 Builds (push) Failing after 3s
+Details
+
+Python package / build (3.9) (push) Failing after 27s
+Details
+
+SwissAirDry CI Fix / Python 3.9 Tests (push) Failing after 34s
+Details
+
+CI Build Fix / Fix Python 3.10 Builds (push) Failing after 2s
+Details
+
+CodeQL Advanced / Analyze (c-cpp) (push) Failing after 1m
+Details
+
+Python package / build (3.10) (push) Failing after 27s
+Details
+
+SwissAirDry CI Fix / Python 3.10 Tests (push) Failing after 33s
+Details
+
+CI Build Fix / Fix Python 3.11 Builds (push) Failing after 2s
+Details
+
+CodeQL Advanced / Analyze (java-kotlin) (push) Failing after 49s
+Details
+
+Python package / build (3.11) (push) Failing after 28s
+Details
+
+SwissAirDry CI Fix / Python 3.11 Tests (push) Failing after 31s
+Details
+
+SwissAirDry CI Fix / Python package / build (3.9) (push) Failing after 2s
+Details
+
+SwissAirDry CI Fix / Python package / build (3.10) (push) Failing after 1s
+Details
+
+SwissAirDry CI Fix / Python package / build (3.11) (push) Failing after 2s
+Details
+
+SwissAirDry CI / Python package / build (3.9) (push) Failing after 3s
+Details
+
+SwissAirDry CI / Python package / build (3.10) (push) Failing after 4s
+Details
+
+SwissAirDry CI / Python package / build (3.11) (push) Failing after 2s
+Details
+
+SwissAirDry CI / Python 3.9 Tests (push) Failing after 7s
+Details
+
+SwissAirDry CI / Python 3.10 Tests (push) Failing after 7s
+Details
+
+SwissAirDry CI / Python 3.11 Tests (push) Failing after 8s
+Details
+
+CodeQL Advanced / Analyze (actions) (push) Successful in 1m
+Details
+
+PHP Composer / build (push) Successful in 4s
+Details
+
+SwissAirDry CI / Code-Qualität prüfen (push) Successful in 21s
+Details
+
+CodeQL Advanced / Analyze (javascript-typescript) (push) Successful in 1m
+Details
+
+CodeQL Advanced / Analyze (python) (push) Successful in 1m
+Details
+
+SwissAirDry CI / Frontend prüfen (push) Successful in 21s
+Details
+
+SwissAirDry CI / PHP Composer Check (push) Successful in 12s

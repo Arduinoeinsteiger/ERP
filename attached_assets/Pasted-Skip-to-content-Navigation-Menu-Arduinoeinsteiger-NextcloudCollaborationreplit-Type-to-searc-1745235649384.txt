@@ -1,0 +1,120 @@
+Skip to content
+Navigation Menu
+Arduinoeinsteiger
+NextcloudCollaborationreplit
+
+Type / to search
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security
+35
+Insights
+Settings
+Security: Arduinoeinsteiger/NextcloudCollaborationreplit
+Security Navigation
+Reporting
+Vulnerability alerts
+Dependabot alerts
+Dependency files checked 1 minute ago
+Give feedback
+Auto-triage your alerts
+Control how Dependabot opens pull requests, ignores false positives and snoozes alerts. Rules can be enforced at the organization level. Free for open source and available for private repos through GitHub Advanced Security.
+
+Learn more about auto-triage
+
+
+is:open 
+
+25 selected
+
+python-jose algorithm confusion with OpenSSH ECDSA keys Critical
+#169 opened 1 minute ago • Detected in python-jose (pip) • api/requirements.api.txt
+
+python-jose algorithm confusion with OpenSSH ECDSA keys Critical
+#160 opened 18 hours ago • Detected in python-jose (pip) • swissairdry/nextcloud/requirements.txt
+
+Arbitrary Code Execution in Pillow Critical
+#97 opened 2 days ago • Detected in Pillow (pip) • swissairdry/api/requirements.txt
+
+Gunicorn HTTP Request/Response Smuggling vulnerability High
+#177 opened 1 minute ago • Detected in gunicorn (pip) • api/requirements.simple.txt
+
+Flask-CORS allows the `Access-Control-Allow-Private-Network` CORS header to be set to true by default High
+#174 opened 1 minute ago • Detected in Flask-Cors (pip) • api/requirements.simple.txt
+
+Request smuggling leading to endpoint restriction bypass in Gunicorn High
+#171 opened 1 minute ago • Detected in gunicorn (pip) • api/requirements.simple.txt
+
+Denial of service (DoS) via deformation `multipart/form-data` boundary High
+#165 opened 1 minute ago • Detected in python-multipart (pip) • api/requirements.api.txt
+
+python-multipart vulnerable to Content-Type Header ReDoS High
+#163 opened 1 minute ago • Detected in python-multipart (pip) • api/requirements.api.txt
+
+Denial of service (DoS) via deformation `multipart/form-data` boundary High
+#103 opened 2 days ago • Detected in python-multipart (pip) • swissairdry/api/requirements.txt
+
+Pillow buffer overflow vulnerability High
+#99 opened 2 days ago • Detected in pillow (pip) • swissairdry/api/requirements.txt
+
+python-multipart vulnerable to Content-Type Header ReDoS High
+#98 opened 2 days ago • Detected in python-multipart (pip) • swissairdry/api/requirements.txt
+
+Flask-CORS improper regex path matching vulnerability Moderate
+#178 opened 1 minute ago • Detected in flask-cors (pip) • api/requirements.simple.txt
+
+Flask-CORS vulnerable to Improper Handling of Case Sensitivity Moderate
+#176 opened 1 minute ago • Detected in flask-cors (pip) • api/requirements.simple.txt
+
+Flask-CORS allows for inconsistent CORS matching Moderate
+#175 opened 1 minute ago • Detected in flask-cors (pip) • api/requirements.simple.txt
+
+Requests `Session` object does not verify requests after making first request with verify=False Moderate
+#173 opened 1 minute ago • Detected in requests (pip) • api/requirements.simple.txt
+
+flask-cors vulnerable to log injection when the log level is set to debug Moderate
+#172 opened 1 minute ago • Detected in flask-cors (pip) • api/requirements.simple.txt
+
+Jinja2 vulnerable to sandbox breakout through attr filter selecting format method Moderate
+#170 opened 1 minute ago • Detected in Jinja2 (pip) • api/requirements.api.txt
+
+python-jose denial of service via compressed JWE content Moderate
+#168 opened 1 minute ago • Detected in python-jose (pip) • api/requirements.api.txt
+
+Jinja has a sandbox breakout through malicious filenames Moderate
+#167 opened 1 minute ago • Detected in jinja2 (pip) • api/requirements.api.txt
+
+Jinja has a sandbox breakout through indirect reference to format method Moderate
+#166 opened 1 minute ago • Detected in jinja2 (pip) • api/requirements.api.txt
+
+Jinja vulnerable to HTML attribute injection when passing user input as keys to xmlattr filter Moderate
+#164 opened 1 minute ago • Detected in Jinja2 (pip) • api/requirements.api.txt
+
+Jinja vulnerable to HTML attribute injection when passing user input as keys to xmlattr filter Moderate
+#162 opened 1 minute ago • Detected in jinja2 (pip) • api/requirements.api.txt
+
+Jinja2 vulnerable to sandbox breakout through attr filter selecting format method Moderate
+#161 opened 18 hours ago • Detected in Jinja2 (pip) • swissairdry/nextcloud/requirements.txt
+
+python-jose denial of service via compressed JWE content Moderate
+#159 opened 18 hours ago • Detected in python-jose (pip) • swissairdry/nextcloud/requirements.txt
+
+Jinja has a sandbox breakout through malicious filenames Moderate
+#158 opened 18 hours ago • Detected in jinja2 (pip) • swissairdry/nextcloud/requirements.txt
+   
+ ProTip! Use has:vulnerable-calls to see alerts with calls to vulnerable functions.
+Footer
+© 2025 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+Dependabot alerts · Arduinoeinsteiger/NextcloudCollaborationreplit

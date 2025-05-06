@@ -1,0 +1,149 @@
+modules = ["python-3.11", "postgresql-16", "python3"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "SwissAirDry API"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "SwissAirDry Simple API"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Ports"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "MQTT Broker"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "SwissAirDry API New"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "SwissAirDry Simple Server"
+
+[[workflows.workflow]]
+name = "SwissAirDry API"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd swissairdry/api/app && python run2.py"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "SwissAirDry Simple API"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd swissairdry/api && python start_simple.py"
+waitForPort = 5001
+
+[[workflows.workflow]]
+name = "Ports"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cat /etc/services | grep 5000"
+
+[[workflows.workflow]]
+name = "MQTT Broker"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mkdir -p /tmp/mosquitto/data /tmp/mosquitto/log && chmod -R 777 /tmp/mosquitto && mosquitto -c swissairdry/mqtt/mosquitto.conf"
+
+[[workflows.workflow]]
+name = "Run Tests"
+author = 7556255
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m pytest"
+
+[[workflows.workflow]]
+name = "SwissAirDry API New"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd swissairdry_new/api && python minimal_http_server.py"
+waitForPort = 5003
+
+[[workflows.workflow]]
+name = "SwissAirDry Simple Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd swissairdry_new/api && python simple_server.py"
+waitForPort = 5003
+
+[deployment]
+run = ["sh", "-c", "cd swissairdry/api/app && python run2.py"]
+deploymentTarget = "cloudrun"
+
+[nix]
+channel = "stable-24_05"
+packages = ["bluez", "cargo", "freetype", "glibcLocales", "lcms2", "libiconv", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "rustc", "tcl", "tk", "zlib"]
+
+[[ports]]
+localPort = 1883
+externalPort = 3000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 5001
+externalPort = 3002
+
+[[ports]]
+localPort = 5003
+externalPort = 3003
+
+[[ports]]
+localPort = 9001
+externalPort = 3001
+
+[objectStorage]
+defaultBucketID = "replit-objstore-6c3f7fd8-f0a1-4017-83dc-a70ce1068553"

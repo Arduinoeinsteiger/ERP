@@ -1,0 +1,375 @@
+/**
+ * Hauptstilsheet für die SwissAirDry ExApp
+ *
+ * Dieses Stylesheet integriert sich mit dem Nextcloud-Design und bietet
+ * zusätzliche Anpassungen für die SwissAirDry ExApp.
+ */
+
+:root {
+  /* Farb-Variablen aus der Nextcloud-UI übernehmen */
+  --swissairdry-primary: var(--color-primary, #0082c9);
+  --swissairdry-primary-text: var(--color-primary-text, #ffffff);
+  --swissairdry-primary-light: var(--color-primary-light, rgba(0, 130, 201, 0.1));
+  
+  /* Status-Farben */
+  --swissairdry-status-active: var(--color-success, #46ba61);
+  --swissairdry-status-inactive: var(--color-text-lighter, #999);
+  --swissairdry-status-warning: var(--color-warning, #e9a846);
+  --swissairdry-status-alarm: var(--color-error, #e9424b);
+  
+  /* UI-Elemente */
+  --swissairdry-background: var(--color-main-background, #f5f5f5);
+  --swissairdry-border: var(--color-border, #ddd);
+  --swissairdry-text: var(--color-text-primary, #333);
+  --swissairdry-text-light: var(--color-text-lighter, #777);
+  
+  /* Abstände */
+  --swissairdry-spacing-xs: 4px;
+  --swissairdry-spacing-s: 8px;
+  --swissairdry-spacing-m: 16px;
+  --swissairdry-spacing-l: 24px;
+  --swissairdry-spacing-xl: 32px;
+  
+  /* Schatten */
+  --swissairdry-shadow-s: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --swissairdry-shadow-m: 0 2px 6px rgba(0, 0, 0, 0.15);
+  --swissairdry-shadow-l: 0 4px 12px rgba(0, 0, 0, 0.2);
+  
+  /* Abgerundete Ecken */
+  --swissairdry-border-radius-s: 4px;
+  --swissairdry-border-radius-m: 8px;
+  --swissairdry-border-radius-l: 12px;
+  
+  /* Typografie */
+  --swissairdry-font-size-xs: 12px;
+  --swissairdry-font-size-s: 14px;
+  --swissairdry-font-size-m: 16px;
+  --swissairdry-font-size-l: 18px;
+  --swissairdry-font-size-xl: 24px;
+}
+
+/* Grundlegende Typografie */
+body {
+  font-family: var(--font-face, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif);
+  font-size: var(--swissairdry-font-size-m);
+  line-height: 1.5;
+  color: var(--swissairdry-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Links */
+a {
+  color: var(--swissairdry-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover,
+a:focus {
+  color: var(--swissairdry-primary-text);
+  text-decoration: underline;
+}
+
+/* Überschriften */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: var(--swissairdry-spacing-m);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: var(--swissairdry-font-size-xl);
+}
+
+h2 {
+  font-size: var(--swissairdry-font-size-l);
+}
+
+h3 {
+  font-size: var(--swissairdry-font-size-m);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  font-size: var(--swissairdry-font-size-s);
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  border-radius: var(--swissairdry-border-radius-s);
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.btn-primary {
+  color: var(--swissairdry-primary-text);
+  background-color: var(--swissairdry-primary);
+  border-color: var(--swissairdry-primary);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.btn-secondary {
+  color: var(--color-text-maxcontrast);
+  background-color: var(--color-background-dark);
+  border-color: var(--color-border-dark);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-background-darker);
+}
+
+.btn-success {
+  color: #fff;
+  background-color: var(--swissairdry-status-active);
+  border-color: var(--swissairdry-status-active);
+}
+
+.btn-warning {
+  color: #fff;
+  background-color: var(--swissairdry-status-warning);
+  border-color: var(--swissairdry-status-warning);
+}
+
+.btn-danger {
+  color: #fff;
+  background-color: var(--swissairdry-status-alarm);
+  border-color: var(--swissairdry-status-alarm);
+}
+
+/* Karten */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: var(--color-main-background);
+  background-clip: border-box;
+  border: 1px solid var(--swissairdry-border);
+  border-radius: var(--swissairdry-border-radius-m);
+  box-shadow: var(--swissairdry-shadow-s);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--swissairdry-shadow-m);
+}
+
+.card-header {
+  padding: var(--swissairdry-spacing-m);
+  margin-bottom: 0;
+  background-color: var(--color-background-hover);
+  border-bottom: 1px solid var(--swissairdry-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-content {
+  flex: 1 1 auto;
+  padding: var(--swissairdry-spacing-m);
+}
+
+.card-footer {
+  padding: var(--swissairdry-spacing-m);
+  background-color: var(--color-background-hover);
+  border-top: 1px solid var(--swissairdry-border);
+}
+
+/* Status-Indikatoren */
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.status-active {
+  background-color: var(--swissairdry-status-active);
+}
+
+.status-inactive {
+  background-color: var(--swissairdry-status-inactive);
+}
+
+.status-warning {
+  background-color: var(--swissairdry-status-warning);
+}
+
+.status-alarm {
+  background-color: var(--swissairdry-status-alarm);
+}
+
+/* Formulare */
+.form-group {
+  margin-bottom: var(--swissairdry-spacing-m);
+}
+
+.form-label {
+  display: inline-block;
+  margin-bottom: var(--swissairdry-spacing-xs);
+  font-weight: 600;
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: var(--swissairdry-font-size-s);
+  line-height: 1.5;
+  color: var(--swissairdry-text);
+  background-color: var(--color-main-background);
+  background-clip: padding-box;
+  border: 1px solid var(--swissairdry-border);
+  border-radius: var(--swissairdry-border-radius-s);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: var(--swissairdry-primary);
+  outline: 0;
+  box-shadow: 0 0 0 3px var(--swissairdry-primary-light);
+}
+
+/* Tabellen */
+.table {
+  width: 100%;
+  margin-bottom: var(--swissairdry-spacing-m);
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: var(--swissairdry-spacing-s) var(--swissairdry-spacing-m);
+  vertical-align: top;
+  border-bottom: 1px solid var(--swissairdry-border);
+}
+
+.table th {
+  font-weight: 600;
+  text-align: left;
+  background-color: var(--color-background-hover);
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-background-hover);
+}
+
+/* Hilfsmittel und Utilities */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-muted {
+  color: var(--swissairdry-text-light);
+}
+
+.d-flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.mt-0 {
+  margin-top: 0;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.m-1 {
+  margin: var(--swissairdry-spacing-xs);
+}
+
+.m-2 {
+  margin: var(--swissairdry-spacing-s);
+}
+
+.m-3 {
+  margin: var(--swissairdry-spacing-m);
+}
+
+.m-4 {
+  margin: var(--swissairdry-spacing-l);
+}
+
+.m-5 {
+  margin: var(--swissairdry-spacing-xl);
+}
+
+.p-1 {
+  padding: var(--swissairdry-spacing-xs);
+}
+
+.p-2 {
+  padding: var(--swissairdry-spacing-s);
+}
+
+.p-3 {
+  padding: var(--swissairdry-spacing-m);
+}
+
+.p-4 {
+  padding: var(--swissairdry-spacing-l);
+}
+
+.p-5 {
+  padding: var(--swissairdry-spacing-xl);
+}
+
+/* Custom Scrollbar für moderne Browser */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-element);
+}

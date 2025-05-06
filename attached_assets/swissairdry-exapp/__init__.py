@@ -1,0 +1,3 @@
+"""
+swissairdry-exapp package
+"""

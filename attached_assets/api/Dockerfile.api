@@ -1,0 +1,30 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Installiere Build-Abhängigkeiten
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    python3-dev \
+    libpq-dev \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installiere Python-Pakete
+COPY requirements.api.txt .
+RUN pip install --no-cache-dir -r requirements.api.txt
+
+# Kopiere Anwendungscode
+COPY app/ app/
+RUN mkdir -p logs
+
+# Lege Umgebungsvariablen fest
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Port-Freigabe
+EXPOSE 5000
+
+# Starte die API
+CMD ["uvicorn", "app.run2:app", "--host", "0.0.0.0", "--port", "5000", "--reload"]

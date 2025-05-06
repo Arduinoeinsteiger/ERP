@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>swissairdry</id>
+    <name>Swiss Air Dry</name>
+    <summary>SwissAirDry IoT Gerätemanagement</summary>
+    <description><![CDATA[
+# Swiss Air Dry
+Eine umfassende IoT-Geräteverwaltungsplattform für Swiss Air Dry Systeme.
+
+Diese App ermöglicht:
+- Überwachung von Trocknungsgeräten in Echtzeit
+- Anzeige von Sensordaten (Temperatur, Luftfeuchtigkeit, Druck)
+- Ortung von Geräten über BLE/WiFi
+- Steuerung von Geräten über MQTT
+- Automatische Benachrichtigungen bei Problemen
+- Berichterstellung und Visualisierung
+
+Unterstützt von der SwissAirDry API (api.vgnc.org)
+    ]]></description>
+    <version>1.0.0</version>
+    <licence>agpl</licence>
+    <author mail="info@swissairdry.com" homepage="https://swissairdry.com">Swiss Air Dry Team</author>
+    <namespace>SwissAirDry</namespace>
+    <category>tools</category>
+    <category>monitoring</category>
+    <website>https://swissairdry.com</website>
+    <bugs>https://github.com/swissairdry/issues</bugs>
+    <dependencies>
+        <nextcloud min-version="22" max-version="25"/>
+    </dependencies>
+    <navigations>
+        <navigation>
+            <name>Swiss Air Dry</name>
+            <route>swissairdry.page.index</route>
+            <icon>swissairdry.svg</icon>
+        </navigation>
+    </navigations>
+</info>
