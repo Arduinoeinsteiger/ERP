@@ -92,24 +92,25 @@ class MQTTHandler:
         """
         Subscribe to an MQTT topic (synchronous version for Flask).
         """
+        # Always track the topic for future subscription or reconnection
+        self.subscribed_topics.add(topic)
+        
+        # If client isn't connected, we'll subscribe when it connects
         if not self.paho_client or not self.connected:
-            logger.warning("Cannot subscribe: MQTT client not connected")
-            # Track the topic for future subscription when connection is available
-            self.subscribed_topics.add(topic)
+            logger.info(f"Queued subscription to topic {topic} for when MQTT connects")
             return
         
+        # Don't attempt to resubscribe if we're already subscribed
+        # but keep it in the set for reconnection purposes
         if topic in self.subscribed_topics:
             logger.debug(f"Already subscribed to {topic}")
             return
         
         try:
             self.paho_client.subscribe(topic, qos=1)
-            self.subscribed_topics.add(topic)
             logger.info(f"Subscribed to topic: {topic}")
         except Exception as e:
             logger.warning(f"Error subscribing to topic {topic}: {e}")
-            # Add to subscribed topics anyway so we can retry on reconnect
-            self.subscribed_topics.add(topic)
 
     def publish_sync(self, topic: str, payload: Any, retain: bool = False) -> None:
         """

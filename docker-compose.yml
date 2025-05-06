@@ -1,11 +1,32 @@
 version: '3.8'
 
+# Common environment variables for SwissAirDry services
+x-swissairdry-env: &swissairdry-env
+  PGUSER: ${PGUSER:-postgres}
+  PGPASSWORD: ${PGPASSWORD:-postgres}
+  PGHOST: postgres
+  PGPORT: 5432
+  PGDATABASE: ${PGDATABASE:-swissairdry}
+  DATABASE_URL: postgresql://${PGUSER:-postgres}:${PGPASSWORD:-postgres}@postgres:5432/${PGDATABASE:-swissairdry}
+  MQTT_BROKER: mqtt
+  MQTT_PORT: 1883
+  MQTT_USERNAME: ${MQTT_USERNAME:-}
+  MQTT_PASSWORD: ${MQTT_PASSWORD:-}
+
+# Common restart policy
+x-restart-policy: &restart-policy
+  restart: unless-stopped
+
 services:
+  ##############################################################################
+  # DATABASES
+  ##############################################################################
+  
   # PostgreSQL database
   postgres:
+    <<: *restart-policy
     image: postgres:13-alpine
     container_name: swissairdry-postgres
-    restart: unless-stopped
     environment:
       POSTGRES_USER: ${PGUSER:-postgres}
       POSTGRES_PASSWORD: ${PGPASSWORD:-postgres}
@@ -20,11 +41,23 @@ services:
       timeout: 5s
       retries: 5
 
+  # Redis for Nextcloud caching
+  redis:
+    <<: *restart-policy
+    image: redis:alpine
+    container_name: swissairdry-redis
+    volumes:
+      - redis_data:/data
+
+  ##############################################################################
+  # IOT COMMUNICATION
+  ##############################################################################
+  
   # MQTT Broker (Mosquitto)
   mqtt:
+    <<: *restart-policy
     image: eclipse-mosquitto:2
     container_name: swissairdry-mqtt
-    restart: unless-stopped
     volumes:
       - ./mqtt/config:/mosquitto/config
       - ./mqtt/data:/mosquitto/data
@@ -34,27 +67,38 @@ services:
       - "9001:9001"  # WebSockets
     command: "mosquitto -c /mosquitto/config/mosquitto.conf"
 
-  # API and Web Interface
-  api:
-    build: 
+  # MQTT to Database Bridge
+  mqtt-bridge:
+    <<: *restart-policy
+    build:
       context: .
-      dockerfile: Dockerfile
-    container_name: swissairdry-api
-    restart: unless-stopped
+      dockerfile: Dockerfile.bridge
+    container_name: swissairdry-mqtt-bridge
     depends_on:
       - postgres
       - mqtt
     environment:
-      - PGUSER=${PGUSER:-postgres}
-      - PGPASSWORD=${PGPASSWORD:-postgres}
-      - PGHOST=postgres
-      - PGPORT=5432
-      - PGDATABASE=${PGDATABASE:-swissairdry}
-      - DATABASE_URL=postgresql://${PGUSER:-postgres}:${PGPASSWORD:-postgres}@postgres:5432/${PGDATABASE:-swissairdry}
-      - MQTT_BROKER=mqtt
-      - MQTT_PORT=1883
-      - MQTT_USERNAME=${MQTT_USERNAME:-}
-      - MQTT_PASSWORD=${MQTT_PASSWORD:-}
+      <<: *swissairdry-env
+    volumes:
+      - ./mqtt_bridge:/app
+
+  ##############################################################################
+  # MAIN SWISSAIRDRY APPLICATION
+  ##############################################################################
+  
+  # API and Web Interface
+  api:
+    <<: *restart-policy
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: swissairdry-api
+    depends_on:
+      - postgres
+      - mqtt
+    environment:
+      <<: *swissairdry-env
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY:-swissairdry-secret-key}
     ports:
       - "8000:8000"  # API
       - "5000:5000"  # Web Interface
@@ -62,37 +106,18 @@ services:
       - .:/app
       - ./firmware:/app/firmware
 
-  # MQTT to Database Bridge
-  mqtt-bridge:
-    build:
-      context: .
-      dockerfile: Dockerfile.bridge
-    container_name: swissairdry-mqtt-bridge
-    restart: unless-stopped
-    depends_on:
-      - postgres
-      - mqtt
-    environment:
-      - PGUSER=${PGUSER:-postgres}
-      - PGPASSWORD=${PGPASSWORD:-postgres}
-      - PGHOST=postgres
-      - PGPORT=5432
-      - PGDATABASE=${PGDATABASE:-swissairdry}
-      - DATABASE_URL=postgresql://${PGUSER:-postgres}:${PGPASSWORD:-postgres}@postgres:5432/${PGDATABASE:-swissairdry}
-      - MQTT_BROKER=mqtt
-      - MQTT_PORT=1883
-      - MQTT_USERNAME=${MQTT_USERNAME:-}
-      - MQTT_PASSWORD=${MQTT_PASSWORD:-}
-    volumes:
-      - ./mqtt_bridge:/app
-
+  ##############################################################################
+  # NEXTCLOUD INTEGRATION
+  ##############################################################################
+  
   # Nextcloud
   nextcloud:
+    <<: *restart-policy
     image: nextcloud:latest
     container_name: swissairdry-nextcloud
-    restart: unless-stopped
     depends_on:
       - postgres
+      - redis
     environment:
       - POSTGRES_HOST=postgres
       - POSTGRES_DB=${NEXTCLOUD_DB:-nextcloud}
@@ -101,6 +126,7 @@ services:
       - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER:-admin}
       - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD:-admin}
       - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_TRUSTED_DOMAINS:-localhost}
+      - REDIS_HOST=redis
       - PHP_MEMORY_LIMIT=512M
       - PHP_UPLOAD_LIMIT=512M
     ports:
@@ -110,40 +136,29 @@ services:
       - ./nextcloud/apps:/var/www/html/custom_apps
       - ./nextcloud/config:/var/www/html/config
       - ./nextcloud/data:/var/www/html/data
-
-  # Redis for Nextcloud caching
-  redis:
-    image: redis:alpine
-    container_name: swissairdry-redis
-    restart: unless-stopped
-    volumes:
-      - redis_data:/data
   
   # SwissAirDry ExApp Daemon
   exapp-daemon:
+    <<: *restart-policy
     build: 
       context: ./nextcloud/apps/swissairdry/daemon
       dockerfile: Dockerfile
     container_name: swissairdry-exapp-daemon
-    restart: unless-stopped
     depends_on:
       - postgres
       - mqtt
       - nextcloud
     environment:
-      - APP_ID=swissairdry
-      - APP_VERSION=1.0.0
-      - APP_HOST=0.0.0.0
-      - APP_PORT=8081
-      - APP_SECRET=${EXAPP_SECRET:-change_me_in_production}
-      - NEXTCLOUD_URL=http://nextcloud
-      - API_URL=http://api:5000
-      - SIMPLE_API_URL=http://simple-api:5001
-      - MQTT_BROKER=mqtt
-      - MQTT_PORT=1883
-      - MQTT_WS_PORT=9001
-      - MQTT_USERNAME=${MQTT_USERNAME:-}
-      - MQTT_PASSWORD=${MQTT_PASSWORD:-}
+      <<: *swissairdry-env
+      APP_ID: swissairdry
+      APP_VERSION: 1.0.0
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8081
+      APP_SECRET: ${EXAPP_SECRET:-change_me_in_production}
+      NEXTCLOUD_URL: http://nextcloud
+      API_URL: http://api:5000
+      SIMPLE_API_URL: http://simple-api:5001
+      MQTT_WS_PORT: 9001
     ports:
       - "8081:8081"
     volumes:
