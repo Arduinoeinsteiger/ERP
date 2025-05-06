@@ -2,16 +2,19 @@
 Device Manager for the SwissAirDry platform.
 
 This module handles device management operations including
-device discovery, control, and status updates.
+device discovery, control, and status updates via MQTT and BLE.
 """
 import logging
 import json
-from typing import Dict, Any, Optional
-from datetime import datetime
+import asyncio
+from typing import Dict, Any, Optional, List
+from datetime import datetime, timedelta 
 from sqlalchemy.orm import Session
 
 import models
 from mqtt_handler import MQTTHandler
+from ble_service import get_ble_service, BLEService
+from database import get_db
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -21,11 +24,75 @@ class DeviceManager:
     Manages SwissAirDry devices connected to the platform.
     """
     
+    # === BLE Callback-Handler ===
+    
+    def _handle_ble_device_found(self, device):
+        """
+        Callback für neu gefundene BLE-Geräte.
+        """
+        logger.info(f"BLE-Gerät gefunden: {device.name} ({device.address})")
+        
+        # Weitere Gerätedetails werden automatisch vom BLE-Service verarbeitet
+        # und in der Datenbank gespeichert
+        
+    def _handle_ble_device_connected(self, device, client):
+        """
+        Callback für verbundene BLE-Geräte.
+        """
+        logger.info(f"BLE-Gerät verbunden: {device.name} ({device.address})")
+        
+        # Aktualisiere Verbindungsstatus in der Datenbank
+        db = next(get_db())
+        try:
+            db_device = db.query(models.Device).filter_by(ble_address=device.address).first()
+            if db_device:
+                db_device.ble_connected = True
+                db_device.is_online = True
+                db_device.last_seen = datetime.now()
+                db.commit()
+                logger.debug(f"BLE-Verbindungsstatus für {db_device.name} aktualisiert")
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Fehler beim Aktualisieren des BLE-Verbindungsstatus: {e}")
+        finally:
+            db.close()
+            
+    def _handle_ble_device_disconnected(self, device):
+        """
+        Callback für getrennte BLE-Geräte.
+        """
+        logger.info(f"BLE-Gerät getrennt: {device.name} ({device.address})")
+        
+        # Aktualisiere Verbindungsstatus in der Datenbank
+        db = next(get_db())
+        try:
+            db_device = db.query(models.Device).filter_by(ble_address=device.address).first()
+            if db_device:
+                db_device.ble_connected = False
+                db.commit()
+                logger.debug(f"BLE-Verbindungsstatus für {db_device.name} aktualisiert")
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Fehler beim Aktualisieren des BLE-Verbindungsstatus: {e}")
+        finally:
+            db.close()
+            
+    def _handle_ble_sensor_data(self, address: str, sensor_data: Dict[str, Any]):
+        """
+        Callback für Sensordaten von BLE-Geräten.
+        """
+        logger.info(f"BLE-Sensordaten von {address}: {sensor_data}")
+        
+        # Die Daten werden bereits vom BLE-Service in der Datenbank gespeichert,
+        # wir müssen hier nichts zusätzlich tun.
+    
     def __init__(self, mqtt_handler: MQTTHandler):
         """
         Initialize DeviceManager with MQTT handler.
         """
         self.mqtt = mqtt_handler
+        self.ble_service = get_ble_service()
+        self.ble_initialized = False
         
         # Register callbacks for device topics
         self.mqtt.register_callback("swissairdry/+/status", self._handle_status_update)
@@ -39,8 +106,38 @@ class DeviceManager:
         except Exception as e:
             logger.warning(f"Could not subscribe to MQTT topics: {e}")
             # Non-critical, the application will continue without MQTT initially
+            
+        # Register BLE callbacks
+        self.ble_service.register_callback("device_found", self._handle_ble_device_found)
+        self.ble_service.register_callback("device_connected", self._handle_ble_device_connected)
+        self.ble_service.register_callback("device_disconnected", self._handle_ble_device_disconnected)
+        self.ble_service.register_callback("sensor_data", self._handle_ble_sensor_data)
         
         logger.info("DeviceManager initialized")
+        
+    async def initialize_ble(self):
+        """
+        Initialisiert den BLE-Service asynchron.
+        """
+        if not self.ble_initialized:
+            try:
+                await self.ble_service.start()
+                self.ble_initialized = True
+                logger.info("BLE-Service gestartet")
+            except Exception as e:
+                logger.error(f"Fehler beim Starten des BLE-Service: {e}")
+                
+    async def shutdown_ble(self):
+        """
+        Stoppt den BLE-Service.
+        """
+        if self.ble_initialized:
+            try:
+                await self.ble_service.stop()
+                self.ble_initialized = False
+                logger.info("BLE-Service gestoppt")
+            except Exception as e:
+                logger.error(f"Fehler beim Stoppen des BLE-Service: {e}")
     
     def control_power(self, device: models.Device, state: bool) -> bool:
         """
@@ -258,3 +355,256 @@ class DeviceManager:
                 logger.info(f"Device {device_id} [{level}]: {message}")
         except Exception as e:
             logger.error(f"Error handling device log: {e}")
+            
+    # === BLE Callback-Handler ===
+    
+    def _handle_ble_device_found(self, device):
+        """
+        Callback für neu gefundene BLE-Geräte.
+        """
+        logger.info(f"BLE-Gerät gefunden: {device.name} ({device.address})")
+        
+        # Weitere Gerätedetails werden automatisch vom BLE-Service verarbeitet
+        # und in der Datenbank gespeichert
+        
+    def _handle_ble_device_connected(self, device, client):
+        """
+        Callback für verbundene BLE-Geräte.
+        """
+        logger.info(f"BLE-Gerät verbunden: {device.name} ({device.address})")
+        
+        # Aktualisiere Verbindungsstatus in der Datenbank
+        db = next(get_db())
+        try:
+            db_device = db.query(models.Device).filter_by(ble_address=device.address).first()
+            if db_device:
+                db_device.ble_connected = True
+                db_device.is_online = True
+                db_device.last_seen = datetime.now()
+                db.commit()
+                logger.debug(f"BLE-Verbindungsstatus für {db_device.name} aktualisiert")
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Fehler beim Aktualisieren des BLE-Verbindungsstatus: {e}")
+        finally:
+            db.close()
+            
+    def _handle_ble_device_disconnected(self, device):
+        """
+        Callback für getrennte BLE-Geräte.
+        """
+        logger.info(f"BLE-Gerät getrennt: {device.name} ({device.address})")
+        
+        # Aktualisiere Verbindungsstatus in der Datenbank
+        db = next(get_db())
+        try:
+            db_device = db.query(models.Device).filter_by(ble_address=device.address).first()
+            if db_device:
+                db_device.ble_connected = False
+                db.commit()
+                logger.debug(f"BLE-Verbindungsstatus für {db_device.name} aktualisiert")
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Fehler beim Aktualisieren des BLE-Verbindungsstatus: {e}")
+        finally:
+            db.close()
+            
+    def _handle_ble_sensor_data(self, address: str, sensor_data: Dict[str, Any]):
+        """
+        Callback für Sensordaten von BLE-Geräten.
+        """
+        logger.info(f"BLE-Sensordaten von {address}: {sensor_data}")
+        
+        # Die Daten werden bereits vom BLE-Service in der Datenbank gespeichert,
+        # wir müssen hier nichts zusätzlich tun.
+        
+    # === BLE-spezifische Methoden ===
+    
+    async def control_power_ble(self, device: models.Device, state: bool) -> bool:
+        """
+        Steuert den Ein/Aus-Zustand eines Geräts über BLE.
+        
+        Args:
+            device: Das zu steuernde Gerät
+            state: True für Ein, False für Aus
+            
+        Returns:
+            bool: Erfolgsstatus
+        """
+        if not device or not device.ble_address:
+            logger.error("BLE-Steuerung nicht möglich: Kein Gerät oder BLE-Adresse")
+            return False
+            
+        command = {
+            "power": state,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        try:
+            result = await self.ble_service.send_command(device.device_id, command)
+            logger.info(f"BLE-Befehl an {device.name} gesendet: Power {'ON' if state else 'OFF'}")
+            return result
+        except Exception as e:
+            logger.error(f"Fehler beim Senden des BLE-Power-Befehls: {e}")
+            return False
+            
+    async def control_fan_ble(self, device: models.Device, speed: int) -> bool:
+        """
+        Steuert die Lüftergeschwindigkeit eines Geräts über BLE.
+        
+        Args:
+            device: Das zu steuernde Gerät
+            speed: Lüftergeschwindigkeit (0-100%)
+            
+        Returns:
+            bool: Erfolgsstatus
+        """
+        if not device or not device.ble_address:
+            logger.error("BLE-Steuerung nicht möglich: Kein Gerät oder BLE-Adresse")
+            return False
+            
+        command = {
+            "fan_speed": speed,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        try:
+            result = await self.ble_service.send_command(device.device_id, command)
+            logger.info(f"BLE-Befehl an {device.name} gesendet: Fan Speed {speed}%")
+            return result
+        except Exception as e:
+            logger.error(f"Fehler beim Senden des BLE-Fan-Befehls: {e}")
+            return False
+            
+    async def update_config_ble(self, device: models.Device, config: models.DeviceConfig) -> bool:
+        """
+        Aktualisiert die Konfiguration eines Geräts über BLE.
+        
+        Args:
+            device: Das Zielgerät
+            config: Die Gerätekonfiguration
+            
+        Returns:
+            bool: Erfolgsstatus
+        """
+        if not device or not device.ble_address or not config:
+            logger.error("BLE-Konfiguration nicht möglich: Kein Gerät, BLE-Adresse oder Konfiguration")
+            return False
+            
+        config_data = {
+            "update_interval": config.update_interval,
+            "display_type": config.display_type,
+            "has_sensors": config.has_sensors,
+            "ota_enabled": config.ota_enabled,
+            "ble_enabled": config.ble_enabled,
+            "ble_advertise": config.ble_advertise,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        try:
+            result = await self.ble_service.update_config(device.device_id, config_data)
+            logger.info(f"BLE-Konfiguration an {device.name} gesendet")
+            return result
+        except Exception as e:
+            logger.error(f"Fehler beim Senden der BLE-Konfiguration: {e}")
+            return False
+            
+    async def get_ble_devices(self) -> List[models.Device]:
+        """
+        Gibt eine Liste aller Geräte mit BLE-Unterstützung zurück.
+        
+        Returns:
+            List[models.Device]: Liste der BLE-Geräte
+        """
+        db = next(get_db())
+        try:
+            devices = db.query(models.Device).filter(models.Device.ble_address.isnot(None)).all()
+            return devices
+        except Exception as e:
+            logger.error(f"Fehler beim Abrufen der BLE-Geräte: {e}")
+            return []
+        finally:
+            db.close()
+            
+    async def assign_task_to_device(self, device_id: str, task_id: int, start_time: Optional[datetime] = None) -> bool:
+        """
+        Weist einem Gerät eine Aufgabe zu und konfiguriert es entsprechend.
+        
+        Args:
+            device_id: ID des Zielgeräts
+            task_id: ID der zuzuweisenden Aufgabe
+            start_time: Optionaler Startzeitpunkt (Standard: jetzt)
+            
+        Returns:
+            bool: Erfolgsstatus
+        """
+        db = next(get_db())
+        try:
+            # Gerät und Aufgabe abrufen
+            device = db.query(models.Device).filter_by(device_id=device_id).first()
+            task = db.query(models.Task).filter_by(id=task_id).first()
+            
+            if not device or not task:
+                logger.error(f"Gerät {device_id} oder Aufgabe {task_id} nicht gefunden")
+                return False
+                
+            # Startzeit festlegen
+            if not start_time:
+                start_time = datetime.now()
+                
+            # Endzeit berechnen
+            end_time = start_time + timedelta(minutes=task.duration_minutes)
+            
+            # Neue Aufgabenzuweisung erstellen
+            assignment = models.TaskAssignment(
+                device_id=device.id,
+                task_id=task.id,
+                start_time=start_time,
+                end_time=end_time,
+                status="scheduled",
+                notes=f"Automatisch zugewiesen am {datetime.now().isoformat()}"
+            )
+            
+            db.add(assignment)
+            db.commit()
+            
+            # Aufgabenparameter an das Gerät senden
+            task_command = {
+                "action": "start_task",
+                "task_id": task.id,
+                "name": task.name,
+                "duration": task.duration_minutes,
+                "fan_speed": task.fan_speed,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            if task.target_temperature:
+                task_command["target_temperature"] = task.target_temperature
+                
+            if task.target_humidity:
+                task_command["target_humidity"] = task.target_humidity
+            
+            # Über BLE oder MQTT senden, je nach Verfügbarkeit
+            success = False
+            
+            if device.ble_address and self.ble_initialized:
+                try:
+                    success = await self.ble_service.send_command(device.device_id, task_command)
+                except Exception as e:
+                    logger.error(f"Fehler beim Senden der Aufgabe über BLE: {e}")
+            
+            if not success:
+                # Fallback auf MQTT
+                topic = f"swissairdry/{device.device_id}/task"
+                self.mqtt.publish_sync(topic, task_command)
+                success = True
+                
+            logger.info(f"Aufgabe {task.name} wurde Gerät {device.name} zugewiesen")
+            return success
+            
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Fehler bei der Aufgabenzuweisung: {e}")
+            return False
+        finally:
+            db.close()

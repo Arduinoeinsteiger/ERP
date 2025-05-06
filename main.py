@@ -2,11 +2,12 @@
 SwissAirDry Platform - Main Application
 
 This is the main entry point for the SwissAirDry platform, a system for monitoring
-and controlling drying devices with ESP8266/ESP32 hardware.
+and controlling drying devices with ESP8266/ESP32 hardware via MQTT and BLE.
 """
 import os
 import logging
 import atexit
+import asyncio
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 # Use existing SQLAlchemy setup from the database module
 
@@ -14,6 +15,7 @@ from database import engine, get_db
 import models
 from mqtt_handler import MQTTHandler
 from device_manager import DeviceManager
+from ble_service import get_ble_service
 
 # Configure logging
 logging.basicConfig(

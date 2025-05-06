@@ -23,11 +23,16 @@ class Device(Base):
     mac_address = Column(String(17))
     is_online = Column(Boolean, default=False)
     last_seen = Column(DateTime)
+    ble_address = Column(String(17))  # BLE MAC-Adresse für Bluetooth-Verbindungen
+    ble_connected = Column(Boolean, default=False)  # BLE-Verbindungsstatus
+    ble_rssi = Column(Integer)  # BLE Signal-Stärke (RSSI)
+    ble_last_seen = Column(DateTime)  # Letzter Zeitpunkt der BLE-Erkennung
     
     # Relationships
     readings = relationship("SensorReading", back_populates="device", cascade="all, delete")
     logs = relationship("DeviceLog", back_populates="device", cascade="all, delete")
     config = relationship("DeviceConfig", uselist=False, back_populates="device", cascade="all, delete")
+    assignments = relationship("TaskAssignment", back_populates="device", cascade="all, delete")
 
 class SensorReading(Base):
     """
@@ -75,6 +80,9 @@ class DeviceConfig(Base):
     display_type = Column(String(20))  # 64px, 128px, none
     has_sensors = Column(Boolean, default=True)
     ota_enabled = Column(Boolean, default=True)
+    ble_enabled = Column(Boolean, default=True)  # BLE-Unterstützung aktiviert
+    ble_scan_interval = Column(Integer, default=30)  # BLE-Scan-Intervall in Sekunden
+    ble_advertise = Column(Boolean, default=True)  # BLE-Werbung (Advertising) aktiviert
     
     # Relationships
     device = relationship("Device", back_populates="config")
@@ -93,3 +101,42 @@ class OTAUpdate(Base):
     url = Column(String(255), nullable=False)
     md5_hash = Column(String(32), nullable=False)
     is_active = Column(Boolean, default=True)
+
+class Task(Base):
+    """
+    Task model for defining drying tasks that can be assigned to devices.
+    """
+    __tablename__ = "tasks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text)
+    duration_minutes = Column(Integer, nullable=False, default=60)
+    fan_speed = Column(Integer, default=50)  # Prozent
+    target_temperature = Column(Float)
+    target_humidity = Column(Float)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    is_active = Column(Boolean, default=True)
+    
+    # Relationships
+    assignments = relationship("TaskAssignment", back_populates="task", cascade="all, delete")
+
+class TaskAssignment(Base):
+    """
+    TaskAssignment model for assigning tasks to specific devices.
+    """
+    __tablename__ = "task_assignments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    device_id = Column(Integer, ForeignKey("devices.id", ondelete="CASCADE"))
+    task_id = Column(Integer, ForeignKey("tasks.id", ondelete="CASCADE"))
+    start_time = Column(DateTime)
+    end_time = Column(DateTime)
+    status = Column(String(20), nullable=False, default="scheduled")  # scheduled, running, completed, failed
+    progress = Column(Integer, default=0)  # Fortschritt in Prozent
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    notes = Column(Text)
+    
+    # Relationships
+    device = relationship("Device", back_populates="assignments")
+    task = relationship("Task", back_populates="assignments")
