@@ -246,43 +246,43 @@ p {
 
 .btn-primary {
   color: white;
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+  background-color: var(--primary-color-dark);
+  border-color: var(--primary-color-dark);
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-dark);
-  border-color: var(--primary-dark);
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
 }
 
 .btn-outline {
-  color: var(--primary-color);
+  color: var(--primary-color-dark);
   background-color: transparent;
-  border-color: var(--primary-color);
+  border-color: var(--primary-color-dark);
 }
 
 .btn-outline:hover {
   color: white;
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
 }
 
 .btn-success {
   color: white;
-  background-color: var(--success-color);
-  border-color: var(--success-color);
+  background-color: var(--success-color-dark);
+  border-color: var(--success-color-dark);
 }
 
 .btn-warning {
-  color: var(--dark-color);
-  background-color: var(--warning-color);
-  border-color: var(--warning-color);
+  color: #212529;
+  background-color: var(--warning-color-dark);
+  border-color: var(--warning-color-dark);
 }
 
 .btn-danger {
   color: white;
-  background-color: var(--danger-color);
-  border-color: var(--danger-color);
+  background-color: var(--danger-color-dark);
+  border-color: var(--danger-color-dark);
 }
 
 .btn-sm {
@@ -542,14 +542,16 @@ p {
 
 .fan-control {
   padding: 0.25rem 0.5rem;
-  background-color: var(--gray-200);
-  border: 1px solid var(--gray-300);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   transition: var(--transition);
+  color: var(--text-color);
 }
 
 .fan-control:hover {
-  background-color: var(--gray-300);
+  background-color: var(--accent-color);
+  color: white;
 }
 
 .chart-container {
