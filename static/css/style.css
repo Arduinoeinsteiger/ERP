@@ -1,9 +1,10 @@
 /**
- * SwissAirDry Platform - Main Stylesheet
+ * SwissAirDry Platform - Main Stylesheet with Dark Mode
  */
 
 /* ===== Variables ===== */
 :root {
+  /* Light Theme Colors */
   --primary-color: #0066cc;
   --primary-dark: #0052a3;
   --secondary-color: #4a90e2;
@@ -21,9 +22,26 @@
   --gray-700: #495057;
   --gray-800: #343a40;
   --gray-900: #212529;
+  
+  /* Dark Theme Colors - Default */
+  --bg-color: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-tertiary: #2d2d2d;
+  --text-color: #e4e4e4;
+  --text-secondary: #b0b0b0;
+  --border-color: #383838;
+  --card-bg: #242424;
+  --header-bg: #171717;
+  --primary-color-dark: #2176ff;
+  --secondary-color-dark: #5a9cf2;
+  --success-color-dark: #2eb849;
+  --warning-color-dark: #ffd237;
+  --danger-color-dark: #f95565;
+  --accent-color: #4287f5;
+  
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --border-radius: 4px;
-  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   --transition: all 0.3s ease;
 }
 
@@ -37,17 +55,19 @@
 body {
   font-family: var(--font-family);
   line-height: 1.6;
-  color: var(--gray-800);
-  background-color: var(--gray-100);
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  transition: var(--transition);
 }
 
 a {
-  color: var(--primary-color);
+  color: var(--primary-color-dark);
   text-decoration: none;
 }
 
 a:hover {
   text-decoration: underline;
+  color: var(--accent-color);
 }
 
 button {
@@ -116,10 +136,10 @@ p {
 
 /* ===== Header ===== */
 .header {
-  background-color: var(--primary-color);
+  background-color: var(--header-bg);
   color: white;
   padding: 1rem 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .header-container {
@@ -174,21 +194,25 @@ p {
 .section-title {
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--gray-300);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
 /* ===== Cards ===== */
 .card {
-  background-color: white;
+  background-color: var(--card-bg);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
 }
 
 .card-title {
   margin-bottom: 1rem;
   font-size: 1.25rem;
+  color: var(--text-color);
 }
 
 .card-body {
@@ -197,7 +221,7 @@ p {
 
 .card-footer {
   padding-top: 1rem;
-  border-top: 1px solid var(--gray-200);
+  border-top: 1px solid var(--border-color);
 }
 
 /* ===== Buttons ===== */
