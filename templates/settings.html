@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - SwissAirDry Platform</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for("static", filename='/css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-container">
+            <div class="logo">
+                <a href="/">SwissAirDry Platform</a>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="/">Dashboard</a></li>
+                    <li><a href="/devices">Devices</a></li>
+                    <li><a href="/status">System Status</a></li>
+                    <li><a href="/settings" class="active">Settings</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Error container for alerts -->
+            <div id="error-container"></div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="section">
+                        <div class="section-header d-flex justify-content-between align-items-center">
+                            <h2 class="section-title">System Settings</h2>
+                            <button id="save-settings-button" class="btn btn-primary">
+                                <i data-feather="save"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="section">
+                        <h3 class="section-title">General Settings</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="general-settings-form">
+                                    <div class="mb-3">
+                                        <label for="system-name" class="form-label">System Name</label>
+                                        <input type="text" class="form-control" id="system-name" value="SwissAirDry Platform">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="refresh-interval" class="form-label">Dashboard Refresh Interval (seconds)</label>
+                                        <input type="number" class="form-control" id="refresh-interval" value="30" min="5" max="3600">
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="enable-notifications" checked>
+                                        <label class="form-check-label" for="enable-notifications">Enable Notifications</label>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">MQTT Settings</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="mqtt-settings-form">
+                                    <div class="mb-3">
+                                        <label for="mqtt-broker" class="form-label">MQTT Broker Address</label>
+                                        <input type="text" class="form-control" id="mqtt-broker" value="mqtt">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="mqtt-port" class="form-label">MQTT Port</label>
+                                        <input type="number" class="form-control" id="mqtt-port" value="1883" min="1" max="65535">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="mqtt-username" class="form-label">MQTT Username</label>
+                                        <input type="text" class="form-control" id="mqtt-username">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="mqtt-password" class="form-label">MQTT Password</label>
+                                        <input type="password" class="form-control" id="mqtt-password">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="mqtt-topic-prefix" class="form-label">MQTT Topic Prefix</label>
+                                        <input type="text" class="form-control" id="mqtt-topic-prefix" value="swissairdry">
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="mqtt-ssl" checked>
+                                        <label class="form-check-label" for="mqtt-ssl">Use SSL/TLS</label>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">OTA Update Settings</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="ota-settings-form">
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="enable-ota" checked>
+                                        <label class="form-check-label" for="enable-ota">Enable OTA Updates</label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="ota-server-url" class="form-label">OTA Server URL</label>
+                                        <input type="text" class="form-control" id="ota-server-url" value="http://firmware.swissairdry.local">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="check-interval" class="form-label">Update Check Interval (hours)</label>
+                                        <input type="number" class="form-control" id="check-interval" value="24" min="1" max="168">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="section">
+                        <h3 class="section-title">Default Device Settings</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="default-device-settings-form">
+                                    <div class="mb-3">
+                                        <label for="update-interval" class="form-label">Update Interval (seconds)</label>
+                                        <input type="number" class="form-control" id="update-interval" value="60" min="10" max="3600">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="display-type" class="form-label">Default Display Type</label>
+                                        <select class="form-control" id="display-type">
+                                            <option value="64px">64px OLED (ESP8266)</option>
+                                            <option value="128px">128px OLED (ESP32)</option>
+                                            <option value="none">No Display</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="has-sensors" checked>
+                                        <label class="form-check-label" for="has-sensors">Has Sensors</label>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="device-ota-enabled" checked>
+                                        <label class="form-check-label" for="device-ota-enabled">OTA Updates Enabled</label>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">System Maintenance</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-primary" id="check-updates-button">
+                                        <i data-feather="download-cloud"></i> Check for Updates
+                                    </button>
+                                    <button class="btn btn-outline-warning" id="restart-services-button">
+                                        <i data-feather="refresh-cw"></i> Restart Services
+                                    </button>
+                                    <button class="btn btn-outline-danger" id="clear-database-button">
+                                        <i data-feather="trash-2"></i> Clear Sensor Database
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Backup & Restore</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <button class="btn btn-primary w-100" id="backup-button">
+                                        <i data-feather="download"></i> Create Backup
+                                    </button>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="restore-file" class="form-label">Restore from Backup</label>
+                                    <input class="form-control" type="file" id="restore-file">
+                                </div>
+                                <button class="btn btn-outline-primary w-100" id="restore-button">
+                                    <i data-feather="upload"></i> Restore System
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="text-center py-3">
+                <p>&copy; 2025 SwissAirDry Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for("static", filename='/js/app.js') }}"></script>
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', () => {
+            feather.replace();
+            
+            // Save settings button
+            document.getElementById('save-settings-button').addEventListener('click', () => {
+                // Here you would collect all form data and send it to the backend
+                // For demonstration, we'll just show a success message
+                showMessage('Settings saved successfully', 'success');
+            });
+            
+            // System maintenance buttons
+            document.getElementById('check-updates-button').addEventListener('click', () => {
+                showMessage('Checking for updates...', 'info');
+                // Simulate checking for updates
+                setTimeout(() => {
+                    showMessage('System is up to date', 'success');
+                }, 2000);
+            });
+            
+            document.getElementById('restart-services-button').addEventListener('click', () => {
+                if (confirm('Are you sure you want to restart all services?')) {
+                    showMessage('Restarting services...', 'warning');
+                    // Simulate service restart
+                    setTimeout(() => {
+                        showMessage('Services restarted successfully', 'success');
+                    }, 3000);
+                }
+            });
+            
+            document.getElementById('clear-database-button').addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear the sensor database? This action cannot be undone.')) {
+                    showMessage('Clearing database...', 'warning');
+                    // Simulate database clearing
+                    setTimeout(() => {
+                        showMessage('Sensor database cleared successfully', 'success');
+                    }, 2000);
+                }
+            });
+            
+            // Backup and restore buttons
+            document.getElementById('backup-button').addEventListener('click', () => {
+                showMessage('Creating backup...', 'info');
+                // Simulate backup creation
+                setTimeout(() => {
+                    showMessage('Backup created successfully. Downloading file...', 'success');
+                    // Here you would trigger a file download
+                }, 2000);
+            });
+            
+            document.getElementById('restore-button').addEventListener('click', () => {
+                const fileInput = document.getElementById('restore-file');
+                if (!fileInput.files.length) {
+                    showError('Please select a backup file to restore');
+                    return;
+                }
+                
+                if (confirm('Are you sure you want to restore the system from backup? This will overwrite current settings.')) {
+                    showMessage('Restoring from backup...', 'warning');
+                    // Simulate restore process
+                    setTimeout(() => {
+                        showMessage('System restored successfully', 'success');
+                    }, 3000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
