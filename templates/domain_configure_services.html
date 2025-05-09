@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Dienste konfigurieren: {{ zone.name }} - SwissAirDry{% endblock %}
+
+{% block styles %}
+<style>
+  .dashboard-section {
+    background-color: var(--bg-card);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .service-card {
+    background-color: var(--bg-card-secondary);
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .service-details {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .service-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+  }
+  .service-name {
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-bottom: 1rem;
+  }
+  .back-link:hover {
+    color: var(--primary);
+  }
+  .domain-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .domain-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background-color: var(--success-light);
+    color: var(--success);
+  }
+  .ip-detected {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background-color: var(--bg-card-secondary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .ip-detected i {
+    color: var(--primary);
+  }
+  .domain-preview {
+    font-family: monospace;
+    font-size: 0.9rem;
+    padding: 0.3rem 0.6rem;
+    background-color: var(--bg-card-secondary);
+    border-radius: 4px;
+    color: var(--text-primary);
+  }
+  .service-select {
+    min-width: 6rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <a href="{{ url_for('domains_view', zone_id=zone.id) }}" class="back-link">
+    <i class="fas fa-arrow-left me-2"></i> Zurück zu {{ zone.name }}
+  </a>
+  
+  <h1 class="mb-3">Dienste konfigurieren</h1>
+  
+  <div class="domain-info">
+    <h2 class="h4 mb-0">{{ zone.name }}</h2>
+    <span class="domain-badge">
+      {% if zone.is_primary %}Primäre Domain{% else %}Domain{% endif %}
+    </span>
+  </div>
+  
+  <div class="dashboard-section">
+    <h3 class="h5 mb-3">Automatische Dienst-Konfiguration</h3>
+    
+    <div class="ip-detected">
+      <i class="fas fa-network-wired"></i>
+      <div>
+        <strong>Erkannte IP-Adresse:</strong> {{ public_ip or 'Nicht erkannt' }}
+      </div>
+    </div>
+    
+    <form method="POST" action="{{ url_for('domains_configure_services', zone_id=zone.id) }}">
+      <div class="mb-3">
+        <label for="ipAddress" class="form-label">IP-Adresse für Dienste</label>
+        <input type="text" class="form-control" id="ipAddress" name="ip_address" 
+               value="{{ public_ip }}" placeholder="z.B. 192.168.1.1">
+        <div class="form-text">
+          Lassen Sie dieses Feld leer, um die IP-Adresse automatisch zu erkennen.
+        </div>
+      </div>
+      
+      <div class="mb-4">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="true" id="configureAllServices" name="configure_all" checked>
+          <label class="form-check-label" for="configureAllServices">
+            Alle Dienste automatisch konfigurieren
+          </label>
+        </div>
+      </div>
+      
+      <div id="servicesContainer" class="mb-4" style="display: none;">
+        <h4 class="h6 mb-2">Zu konfigurierende Dienste auswählen:</h4>
+        
+        {% for service in available_services %}
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" value="true" 
+                   id="service{{ service.name }}" name="service_{{ service.name }}"
+                   {% if service.required %}checked disabled{% else %}checked{% endif %}>
+            <label class="form-check-label" for="service{{ service.name }}">
+              {{ service.description }} ({{ service.default_subdomain }}.{{ zone.name }})
+              {% if service.required %}<span class="text-danger">*</span>{% endif %}
+            </label>
+          </div>
+        {% endfor %}
+        
+        {% if available_services|selectattr('required', 'eq', true)|list|length > 0 %}
+          <div class="form-text mt-2">
+            <span class="text-danger">*</span> Erforderliche Dienste
+          </div>
+        {% endif %}
+      </div>
+      
+      <div class="mb-3">
+        <label for="previewDomains" class="form-label">Vorschau der Domainkonfiguration:</label>
+        <div id="previewContainer" class="p-3 rounded" style="background-color: var(--bg-card-secondary);">
+          {% for service in available_services %}
+            <div class="mb-2">
+              <strong>{{ service.description }}:</strong>
+              <span class="domain-preview">
+                {% if service.default_subdomain %}{{ service.default_subdomain }}.{% endif %}{{ zone.name }}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <div class="d-flex justify-content-between">
+        <a href="{{ url_for('domains_view', zone_id=zone.id) }}" class="btn btn-secondary">
+          Abbrechen
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-check me-1"></i> Dienste konfigurieren
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <div class="dashboard-section">
+    <h3 class="h5 mb-3">Verfügbare Dienste</h3>
+    
+    {% for service in available_services %}
+      <div class="service-card">
+        <div class="service-details">
+          <div class="service-icon">
+            <i class="fas fa-server"></i>
+          </div>
+          <div>
+            <div class="service-name">{{ service.description }}</div>
+            <div class="text-muted small">Port: {{ service.port }}</div>
+          </div>
+        </div>
+        <div>
+          {% if service.required %}
+            <span class="badge text-bg-danger">Erforderlich</span>
+          {% else %}
+            <span class="badge text-bg-secondary">Optional</span>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const configureAllCheckbox = document.getElementById('configureAllServices');
+    const servicesContainer = document.getElementById('servicesContainer');
+    
+    // Toggle services selection visibility
+    configureAllCheckbox.addEventListener('change', function() {
+      if (this.checked) {
+        servicesContainer.style.display = 'none';
+      } else {
+        servicesContainer.style.display = 'block';
+      }
+    });
+  });
+</script>
+{% endblock %}

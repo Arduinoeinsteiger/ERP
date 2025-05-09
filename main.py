@@ -10,7 +10,7 @@ import atexit
 import asyncio
 import threading
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, session
 # Use existing SQLAlchemy setup from the database module
 
 from database import engine, get_db
@@ -18,6 +18,8 @@ import models
 from mqtt_handler import MQTTHandler
 from device_manager import DeviceManager
 from ble_service import get_ble_service
+from cloudflare_manager import get_cloudflare_manager
+import domain_manager
 
 # Configure logging
 logging.basicConfig(
@@ -334,6 +336,307 @@ def assign_task_api(device_id):
         return jsonify({"success": True, "message": f"Aufgabe {task_id} erfolgreich zugewiesen"})
     else:
         return jsonify({"success": False, "error": "Aufgabe konnte nicht zugewiesen werden"}), 500
+
+# Domain Management Routes
+@app.route("/domains")
+def domains_page():
+    """Render the domain management page."""
+    db = next(get_db())
+    try:
+        # Get domain status
+        status = domain_manager.get_domain_status(db)
+        
+        # Prepare template variables
+        cloudflare_connected = status.get("cloudflare_connected", False)
+        zones = status.get("zones", [])
+        service_mappings = status.get("service_mappings", {})
+        public_ip = status.get("public_ip", "")
+        
+        return render_template(
+            "domains.html",
+            cloudflare_connected=cloudflare_connected,
+            zones=zones,
+            service_mappings=service_mappings,
+            public_ip=public_ip
+        )
+    except Exception as e:
+        logger.error(f"Error rendering domains page: {e}")
+        flash(f"Fehler beim Laden der Domain-Verwaltung: {str(e)}", "danger")
+        return redirect(url_for("root"))
+    finally:
+        db.close()
+
+@app.route("/domains/connect")
+def domains_connect_cloudflare():
+    """Connect to Cloudflare to manage domains."""
+    cf_manager = get_cloudflare_manager()
+    
+    # Check if token is already validated
+    if cf_manager.verify_token():
+        flash("Bereits mit Cloudflare verbunden.", "info")
+        return redirect(url_for("domains_page"))
+    
+    # If no environment variable is set, we'll need to ask the user to provide it
+    if not os.environ.get("CLOUDFLARE_API_TOKEN"):
+        flash(
+            "Bitte geben Sie Ihr Cloudflare API-Token an. "
+            "Dieses können Sie in Ihrem Cloudflare-Dashboard unter 'My Profile > API Tokens' erstellen.", 
+            "warning"
+        )
+        # Here we'd normally show a form to enter the token
+        # For this example, we'll redirect to settings page
+        return redirect(url_for("settings_page"))
+    
+    # Try to verify the token
+    if cf_manager.verify_token():
+        flash("Erfolgreich mit Cloudflare verbunden!", "success")
+    else:
+        flash("Verbindung zu Cloudflare fehlgeschlagen. Bitte prüfen Sie Ihr API-Token.", "danger")
+    
+    return redirect(url_for("domains_page"))
+
+@app.route("/domains/import")
+def domains_import():
+    """Import domains from Cloudflare."""
+    db = next(get_db())
+    try:
+        # Import domains from Cloudflare
+        zone_count, record_count, errors = domain_manager.import_cloudflare_domains(db)
+        
+        if errors:
+            for error in errors:
+                flash(f"Fehler: {error}", "danger")
+        
+        if zone_count > 0 or record_count > 0:
+            flash(f"{zone_count} Domains und {record_count} DNS-Einträge erfolgreich importiert.", "success")
+        else:
+            flash("Keine neuen Domains gefunden oder importiert.", "info")
+        
+        return redirect(url_for("domains_page"))
+    except Exception as e:
+        logger.error(f"Error importing domains: {e}")
+        flash(f"Fehler beim Importieren der Domains: {str(e)}", "danger")
+        return redirect(url_for("domains_page"))
+    finally:
+        db.close()
+
+@app.route("/domains/view/<int:zone_id>")
+def domains_view(zone_id):
+    """View detailed information about a domain zone."""
+    db = next(get_db())
+    try:
+        zone = db.query(models.DomainZone).filter_by(id=zone_id).first()
+        if not zone:
+            flash(f"Domain mit ID {zone_id} nicht gefunden.", "danger")
+            return redirect(url_for("domains_page"))
+        
+        dns_records = db.query(models.DNSRecord).filter_by(zone_id=zone.id).all()
+        service_mappings = db.query(models.DomainServiceMapping).filter_by(zone_id=zone.id).all()
+        
+        return render_template(
+            "domain_details.html",
+            zone=zone,
+            dns_records=dns_records,
+            service_mappings=service_mappings
+        )
+    except Exception as e:
+        logger.error(f"Error viewing domain details: {e}")
+        flash(f"Fehler beim Laden der Domain-Details: {str(e)}", "danger")
+        return redirect(url_for("domains_page"))
+    finally:
+        db.close()
+
+@app.route("/domains/dns/<int:zone_id>")
+def domains_dns_records(zone_id):
+    """View DNS records for a domain zone."""
+    db = next(get_db())
+    try:
+        zone = db.query(models.DomainZone).filter_by(id=zone_id).first()
+        if not zone:
+            flash(f"Domain mit ID {zone_id} nicht gefunden.", "danger")
+            return redirect(url_for("domains_page"))
+        
+        dns_records = db.query(models.DNSRecord).filter_by(zone_id=zone.id).all()
+        
+        return render_template(
+            "domain_dns.html",
+            zone=zone,
+            dns_records=dns_records
+        )
+    except Exception as e:
+        logger.error(f"Error viewing DNS records: {e}")
+        flash(f"Fehler beim Laden der DNS-Einträge: {str(e)}", "danger")
+        return redirect(url_for("domains_page"))
+    finally:
+        db.close()
+
+@app.route("/domains/configure-services/<int:zone_id>", methods=["GET", "POST"])
+def domains_configure_services(zone_id):
+    """Configure services for a domain zone."""
+    db = next(get_db())
+    try:
+        zone = db.query(models.DomainZone).filter_by(id=zone_id).first()
+        if not zone:
+            flash(f"Domain mit ID {zone_id} nicht gefunden.", "danger")
+            return redirect(url_for("domains_page"))
+        
+        if request.method == "POST":
+            # Get IP address from form or auto-detect
+            ip_address = request.form.get("ip_address")
+            if not ip_address:
+                ip_address = domain_manager.get_public_ip()
+                if not ip_address:
+                    flash("Fehler: IP-Adresse konnte nicht automatisch erkannt werden.", "danger")
+                    return redirect(request.url)
+            
+            # Set up service domains
+            services_count, errors = domain_manager.setup_service_domains(
+                zone_id=zone.id,
+                domain=zone.name,
+                ip_address=ip_address,
+                db=db
+            )
+            
+            if errors:
+                for error in errors:
+                    flash(f"Fehler: {error}", "danger")
+            
+            if services_count > 0:
+                flash(f"{services_count} Dienste erfolgreich konfiguriert.", "success")
+            else:
+                flash("Keine Dienste konfiguriert.", "info")
+            
+            return redirect(url_for("domains_page"))
+        
+        # GET request: show configuration form
+        available_services = domain_manager.get_available_services()
+        public_ip = domain_manager.get_public_ip()
+        
+        return render_template(
+            "domain_configure_services.html",
+            zone=zone,
+            available_services=available_services,
+            public_ip=public_ip
+        )
+    except Exception as e:
+        logger.error(f"Error configuring services: {e}")
+        flash(f"Fehler bei der Dienst-Konfiguration: {str(e)}", "danger")
+        return redirect(url_for("domains_page"))
+    finally:
+        db.close()
+
+@app.route("/domains/delete/<int:zone_id>", methods=["POST"])
+def domains_delete(zone_id):
+    """Delete a domain zone from the database."""
+    db = next(get_db())
+    try:
+        zone = db.query(models.DomainZone).filter_by(id=zone_id).first()
+        if not zone:
+            flash(f"Domain mit ID {zone_id} nicht gefunden.", "danger")
+            return redirect(url_for("domains_page"))
+        
+        # Note: We're only removing from our database, not from Cloudflare
+        db.delete(zone)
+        db.commit()
+        
+        flash(f"Domain '{zone.name}' erfolgreich entfernt.", "success")
+        return redirect(url_for("domains_page"))
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error deleting domain: {e}")
+        flash(f"Fehler beim Löschen der Domain: {str(e)}", "danger")
+        return redirect(url_for("domains_page"))
+    finally:
+        db.close()
+
+@app.route("/domains/delete-mapping", methods=["POST"])
+def domains_delete_mapping():
+    """Delete a service mapping."""
+    service_name = request.args.get("service")
+    zone_name = request.args.get("zone")
+    
+    if not service_name or not zone_name:
+        flash("Fehler: Service-Name und Domain-Name sind erforderlich.", "danger")
+        return redirect(url_for("domains_page"))
+    
+    db = next(get_db())
+    try:
+        zone = db.query(models.DomainZone).filter_by(name=zone_name).first()
+        if not zone:
+            flash(f"Domain '{zone_name}' nicht gefunden.", "danger")
+            return redirect(url_for("domains_page"))
+        
+        mapping = db.query(models.DomainServiceMapping).filter_by(
+            zone_id=zone.id,
+            service_name=service_name
+        ).first()
+        
+        if not mapping:
+            flash(f"Mapping für Service '{service_name}' auf Domain '{zone_name}' nicht gefunden.", "danger")
+            return redirect(url_for("domains_page"))
+        
+        db.delete(mapping)
+        db.commit()
+        
+        flash(f"Mapping für Service '{service_name}' auf Domain '{zone_name}' erfolgreich entfernt.", "success")
+        return redirect(url_for("domains_page"))
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error deleting mapping: {e}")
+        flash(f"Fehler beim Löschen des Mappings: {str(e)}", "danger")
+        return redirect(url_for("domains_page"))
+    finally:
+        db.close()
+
+@app.route("/domains/edit-mapping/<service>/<zone_name>", methods=["GET", "POST"])
+def domains_edit_mapping(service, zone_name):
+    """Edit a service mapping."""
+    db = next(get_db())
+    try:
+        zone = db.query(models.DomainZone).filter_by(name=zone_name).first()
+        if not zone:
+            flash(f"Domain '{zone_name}' nicht gefunden.", "danger")
+            return redirect(url_for("domains_page"))
+        
+        mapping = db.query(models.DomainServiceMapping).filter_by(
+            zone_id=zone.id,
+            service_name=service
+        ).first()
+        
+        if not mapping:
+            flash(f"Mapping für Service '{service}' auf Domain '{zone_name}' nicht gefunden.", "danger")
+            return redirect(url_for("domains_page"))
+        
+        if request.method == "POST":
+            # Update mapping
+            subdomain = request.form.get("subdomain")
+            https_enabled = request.form.get("https_enabled") == "on"
+            notes = request.form.get("notes")
+            
+            mapping.subdomain = subdomain
+            mapping.https_enabled = https_enabled
+            mapping.notes = notes
+            mapping.updated_at = datetime.now()
+            
+            db.commit()
+            
+            flash(f"Mapping für Service '{service}' erfolgreich aktualisiert.", "success")
+            return redirect(url_for("domains_page"))
+        
+        # GET request: show edit form
+        return render_template(
+            "domain_edit_mapping.html",
+            mapping=mapping,
+            zone=zone,
+            service=service
+        )
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error editing mapping: {e}")
+        flash(f"Fehler beim Bearbeiten des Mappings: {str(e)}", "danger")
+        return redirect(url_for("domains_page"))
+    finally:
+        db.close()
 
 # API routes can be added here or in a separate Blueprint
 

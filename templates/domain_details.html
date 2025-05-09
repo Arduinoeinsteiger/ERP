@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Domain-Details: {{ zone.name }} - SwissAirDry{% endblock %}
+
+{% block styles %}
+<style>
+  .dashboard-section {
+    background-color: var(--bg-card);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .record-card {
+    background-color: var(--bg-card-secondary);
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--info);
+  }
+  .mapping-card {
+    background-color: var(--bg-card-secondary);
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--primary);
+  }
+  .status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  .status-active {
+    background-color: var(--success-light);
+    color: var(--success);
+  }
+  .status-inactive {
+    background-color: var(--danger-light);
+    color: var(--danger);
+  }
+  .status-pending {
+    background-color: var(--warning-light);
+    color: var(--warning);
+  }
+  .nameserver-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .nameserver-item {
+    background-color: var(--info-light);
+    color: var(--info);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-family: monospace;
+  }
+  .record-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .record-type {
+    background-color: var(--primary-light);
+    color: var(--bg-primary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    min-width: 50px;
+    text-align: center;
+  }
+  .record-content {
+    font-family: monospace;
+    word-break: break-all;
+  }
+  .record-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-bottom: 1rem;
+  }
+  .back-link:hover {
+    color: var(--primary);
+  }
+  .domain-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .domain-badge {
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <a href="{{ url_for('domains_page') }}" class="back-link">
+    <i class="fas fa-arrow-left me-2"></i> Zurück zur Domain-Übersicht
+  </a>
+  
+  <div class="domain-header">
+    <h1 class="mb-0">{{ zone.name }}</h1>
+    <span class="domain-badge status-badge {% if zone.status == 'active' %}status-active{% else %}status-pending{% endif %}">
+      {{ zone.status }}
+    </span>
+    {% if zone.is_primary %}
+      <span class="domain-badge status-badge status-active">Primär</span>
+    {% endif %}
+  </div>
+  
+  <div class="dashboard-section">
+    <h2 class="h4 mb-3">Domain-Informationen</h2>
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>Zone ID:</strong> {{ zone.zone_id }}</p>
+        <p><strong>Status:</strong> {{ zone.status }}</p>
+        <p><strong>Erstellt:</strong> {{ zone.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>Nameserver:</strong></p>
+        <div class="nameserver-list">
+          {% for ns in zone.nameservers %}
+            <div class="nameserver-item">{{ ns }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    
+    {% if zone.description %}
+      <div class="mt-3">
+        <p><strong>Beschreibung:</strong></p>
+        <p>{{ zone.description }}</p>
+      </div>
+    {% endif %}
+    
+    <div class="mt-3 d-flex gap-2">
+      <a href="{{ url_for('domains_dns_records', zone_id=zone.id) }}" class="btn btn-outline-primary">
+        <i class="fas fa-list me-1"></i> DNS-Einträge verwalten
+      </a>
+      <a href="{{ url_for('domains_configure_services', zone_id=zone.id) }}" class="btn btn-outline-primary">
+        <i class="fas fa-cogs me-1"></i> Dienste konfigurieren
+      </a>
+      <button class="btn btn-outline-danger" onclick="confirmDeleteZone({{ zone.id }}, '{{ zone.name }}')">
+        <i class="fas fa-trash-alt me-1"></i> Domain entfernen
+      </button>
+    </div>
+  </div>
+  
+  {% if dns_records %}
+    <div class="dashboard-section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">DNS-Einträge</h2>
+        <a href="{{ url_for('domains_dns_records', zone_id=zone.id) }}" class="btn btn-sm btn-outline-primary">
+          Alle anzeigen
+        </a>
+      </div>
+      
+      {% for record in dns_records[:5] %}
+        <div class="record-card">
+          <div class="record-details">
+            <div>
+              <h3 class="h6 mb-1">{{ record.name }}</h3>
+              <div class="d-flex align-items-center gap-2">
+                <span class="record-type">{{ record.type }}</span>
+                <span class="record-content">{{ record.content }}</span>
+              </div>
+              <div class="text-muted small mt-1">
+                TTL: {{ 'Auto' if record.ttl == 1 else record.ttl }}
+                {% if record.proxied %}
+                  <span class="ms-2">
+                    <i class="fas fa-shield-alt" title="Proxied by Cloudflare"></i> Cloudflare Proxy
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      
+      {% if dns_records|length > 5 %}
+        <div class="text-center mt-3">
+          <a href="{{ url_for('domains_dns_records', zone_id=zone.id) }}" class="btn btn-sm btn-outline-secondary">
+            Alle {{ dns_records|length }} DNS-Einträge anzeigen
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+  
+  {% if service_mappings %}
+    <div class="dashboard-section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">Dienst-Mappings</h2>
+        <a href="{{ url_for('domains_configure_services', zone_id=zone.id) }}" class="btn btn-sm btn-outline-primary">
+          Konfigurieren
+        </a>
+      </div>
+      
+      {% for mapping in service_mappings %}
+        <div class="mapping-card">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h3 class="h6 mb-1">{{ mapping.service_name }}</h3>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <a href="{% if mapping.https_enabled %}https{% else %}http{% endif %}://{{ mapping.subdomain }}.{{ zone.name }}" target="_blank">
+                  {{ mapping.subdomain }}.{{ zone.name }}
+                </a>
+                {% if mapping.https_enabled %}
+                  <i class="fas fa-lock text-success" title="HTTPS aktiviert"></i>
+                {% else %}
+                  <i class="fas fa-lock-open text-warning" title="HTTPS deaktiviert"></i>
+                {% endif %}
+              </div>
+              {% if mapping.notes %}
+                <div class="text-muted small">{{ mapping.notes }}</div>
+              {% endif %}
+            </div>
+            <div>
+              <a href="{{ url_for('domains_edit_mapping', service=mapping.service_name, zone_name=zone.name) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-pencil-alt"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+<!-- Delete Zone Confirmation Modal -->
+<div class="modal fade" id="deleteZoneModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Domain entfernen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        <p>Sind Sie sicher, dass Sie die Domain <strong id="deleteZoneName"></strong> entfernen möchten?</p>
+        <p class="text-danger">Warnung: Diese Aktion entfernt die Domain nur aus der SwissAirDry-Plattform, nicht aus Ihrem Cloudflare-Konto.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <form id="deleteZoneForm" method="POST" action="">
+          <button type="submit" class="btn btn-danger">Entfernen</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function confirmDeleteZone(zoneId, zoneName) {
+    document.getElementById('deleteZoneName').textContent = zoneName;
+    document.getElementById('deleteZoneForm').action = "{{ url_for('domains_delete', zone_id=0) }}".replace('/0', '/' + zoneId);
+    new bootstrap.Modal(document.getElementById('deleteZoneModal')).show();
+  }
+</script>
+{% endblock %}

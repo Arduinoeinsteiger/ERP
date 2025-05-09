@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Mapping bearbeiten: {{ service }} - SwissAirDry{% endblock %}
+
+{% block styles %}
+<style>
+  .dashboard-section {
+    background-color: var(--bg-card);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-bottom: 1rem;
+  }
+  .back-link:hover {
+    color: var(--primary);
+  }
+  .service-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background-color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+  .service-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .domain-preview {
+    font-family: monospace;
+    padding: 0.5rem 1rem;
+    background-color: var(--bg-card-secondary);
+    border-radius: 6px;
+    margin-top: 1rem;
+    display: inline-block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <a href="{{ url_for('domains_page') }}" class="back-link">
+    <i class="fas fa-arrow-left me-2"></i> Zurück zur Domain-Übersicht
+  </a>
+  
+  <h1 class="mb-3">Mapping bearbeiten</h1>
+  
+  <div class="service-info">
+    <div class="service-icon">
+      <i class="fas fa-server"></i>
+    </div>
+    <div>
+      <h2 class="h4 mb-1">{{ service }}</h2>
+      <div class="text-muted">Domain: {{ zone.name }}</div>
+    </div>
+  </div>
+  
+  <div class="dashboard-section">
+    <form method="POST" action="{{ url_for('domains_edit_mapping', service=service, zone_name=zone.name) }}">
+      <div class="mb-3">
+        <label for="subdomain" class="form-label">Subdomain</label>
+        <div class="input-group">
+          <input type="text" class="form-control" id="subdomain" name="subdomain" 
+                 value="{{ mapping.subdomain }}" placeholder="z.B. api, www">
+          <span class="input-group-text">.{{ zone.name }}</span>
+        </div>
+        <div class="form-text">
+          Lassen Sie dieses Feld leer, um die Root-Domain zu verwenden.
+        </div>
+      </div>
+      
+      <div class="mb-3">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="httpsEnabled" 
+                 name="https_enabled" {% if mapping.https_enabled %}checked{% endif %}>
+          <label class="form-check-label" for="httpsEnabled">HTTPS aktivieren</label>
+        </div>
+        <div class="form-text">
+          Erfordert ein gültiges SSL-Zertifikat für die Domain.
+        </div>
+      </div>
+      
+      <div class="mb-4">
+        <label for="notes" class="form-label">Notizen</label>
+        <textarea class="form-control" id="notes" name="notes" rows="3">{{ mapping.notes or '' }}</textarea>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Vorschau</label>
+        <div class="domain-preview">
+          <i class="fas {% if mapping.https_enabled %}fa-lock{% else %}fa-lock-open{% endif %} me-2"></i>
+          <span id="protocol">{% if mapping.https_enabled %}https{% else %}http{% endif %}://</span><span id="previewSubdomain">{% if mapping.subdomain %}{{ mapping.subdomain }}.{% endif %}</span>{{ zone.name }}
+        </div>
+      </div>
+      
+      <div class="d-flex justify-content-between mt-4">
+        <button type="button" class="btn btn-outline-danger" onclick="confirmDeleteMapping()">
+          Mapping entfernen
+        </button>
+        <div>
+          <a href="{{ url_for('domains_page') }}" class="btn btn-secondary me-2">Abbrechen</a>
+          <button type="submit" class="btn btn-primary">Speichern</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Mapping Confirmation Modal -->
+<div class="modal fade" id="deleteMappingModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Mapping entfernen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        <p>Sind Sie sicher, dass Sie das Mapping für <strong>{{ service }}</strong> auf <strong>{{ zone.name }}</strong> entfernen möchten?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <form id="deleteMappingForm" method="POST" action="{{ url_for('domains_delete_mapping') }}?service={{ service }}&zone={{ zone.name }}">
+          <button type="submit" class="btn btn-danger">Entfernen</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const subdomainInput = document.getElementById('subdomain');
+    const httpsSwitch = document.getElementById('httpsEnabled');
+    const previewSubdomain = document.getElementById('previewSubdomain');
+    const protocol = document.getElementById('protocol');
+    
+    // Update preview when subdomain changes
+    subdomainInput.addEventListener('input', function() {
+      if (this.value) {
+        previewSubdomain.textContent = this.value + '.';
+      } else {
+        previewSubdomain.textContent = '';
+      }
+    });
+    
+    // Update preview when HTTPS status changes
+    httpsSwitch.addEventListener('change', function() {
+      if (this.checked) {
+        protocol.textContent = 'https://';
+      } else {
+        protocol.textContent = 'http://';
+      }
+    });
+  });
+  
+  function confirmDeleteMapping() {
+    new bootstrap.Modal(document.getElementById('deleteMappingModal')).show();
+  }
+</script>
+{% endblock %}

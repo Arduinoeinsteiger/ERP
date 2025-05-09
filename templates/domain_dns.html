@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}DNS-Einträge: {{ zone.name }} - SwissAirDry{% endblock %}
+
+{% block styles %}
+<style>
+  .dashboard-section {
+    background-color: var(--bg-card);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .record-card {
+    background-color: var(--bg-card-secondary);
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--info);
+  }
+  .record-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .record-type {
+    background-color: var(--primary-light);
+    color: var(--bg-primary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    min-width: 50px;
+    text-align: center;
+  }
+  .record-content {
+    font-family: monospace;
+    word-break: break-all;
+  }
+  .record-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-bottom: 1rem;
+  }
+  .back-link:hover {
+    color: var(--primary);
+  }
+  .dns-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .dns-type-filter {
+    padding: 0.3rem 0.7rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background-color: var(--bg-card-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .dns-type-filter:hover {
+    background-color: var(--primary-light);
+    color: var(--bg-primary);
+  }
+  .dns-type-filter.active {
+    background-color: var(--primary);
+    color: white;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <a href="{{ url_for('domains_view', zone_id=zone.id) }}" class="back-link">
+    <i class="fas fa-arrow-left me-2"></i> Zurück zu {{ zone.name }}
+  </a>
+  
+  <h1 class="mb-3">DNS-Einträge für {{ zone.name }}</h1>
+  
+  <div class="dashboard-section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h4 mb-0">Alle DNS-Einträge</h2>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecordModal">
+        <i class="fas fa-plus me-1"></i> Neuer Eintrag
+      </button>
+    </div>
+    
+    {% if dns_records %}
+      <div class="dns-types">
+        <button class="dns-type-filter active" data-filter="all">Alle</button>
+        <button class="dns-type-filter" data-filter="A">A</button>
+        <button class="dns-type-filter" data-filter="AAAA">AAAA</button>
+        <button class="dns-type-filter" data-filter="CNAME">CNAME</button>
+        <button class="dns-type-filter" data-filter="TXT">TXT</button>
+        <button class="dns-type-filter" data-filter="MX">MX</button>
+        <button class="dns-type-filter" data-filter="NS">NS</button>
+      </div>
+      
+      <div id="dns-records-container">
+        {% for record in dns_records %}
+          <div class="record-card" data-type="{{ record.type }}">
+            <div class="record-details">
+              <div>
+                <h3 class="h6 mb-1">{{ record.name }}</h3>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="record-type">{{ record.type }}</span>
+                  <span class="record-content">{{ record.content }}</span>
+                </div>
+                <div class="text-muted small mt-1">
+                  TTL: {{ 'Auto' if record.ttl == 1 else record.ttl }}
+                  {% if record.proxied %}
+                    <span class="ms-2">
+                      <i class="fas fa-shield-alt" title="Proxied by Cloudflare"></i> Cloudflare Proxy
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+              <div>
+                <button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteRecord('{{ record.id }}', '{{ record.name }}')">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <i class="fas fa-dns fa-3x mb-3 text-muted"></i>
+        <h3 class="h4 mb-3">Keine DNS-Einträge gefunden</h3>
+        <p class="text-muted mb-4">Diese Domain hat noch keine DNS-Einträge.</p>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecordModal">
+          <i class="fas fa-plus me-1"></i> Neuen Eintrag hinzufügen
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Add Record Modal -->
+<div class="modal fade" id="addRecordModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Neuen DNS-Eintrag hinzufügen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addRecordForm" method="POST" action="{{ url_for('domains_dns_add_record', zone_id=zone.id) }}">
+          <div class="mb-3">
+            <label for="recordType" class="form-label">Typ</label>
+            <select class="form-select" id="recordType" name="type" required>
+              <option value="A">A</option>
+              <option value="AAAA">AAAA</option>
+              <option value="CNAME">CNAME</option>
+              <option value="TXT">TXT</option>
+              <option value="MX">MX</option>
+              <option value="NS">NS</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="recordName" class="form-label">Name</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="recordName" name="name" placeholder="subdomain" required>
+              <span class="input-group-text">.{{ zone.name }}</span>
+            </div>
+            <div class="form-text">Für die Root-Domain einfach @ verwenden.</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="recordContent" class="form-label">Inhalt</label>
+            <input type="text" class="form-control" id="recordContent" name="content" required>
+            <div id="contentHelp" class="form-text">
+              Für A-Einträge: IP-Adresse (z.B. 192.168.1.1)
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="recordTTL" class="form-label">TTL</label>
+            <select class="form-select" id="recordTTL" name="ttl">
+              <option value="1" selected>Auto</option>
+              <option value="60">1 Minute</option>
+              <option value="300">5 Minuten</option>
+              <option value="1800">30 Minuten</option>
+              <option value="3600">1 Stunde</option>
+              <option value="86400">1 Tag</option>
+            </select>
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" value="true" id="recordProxied" name="proxied" checked>
+            <label class="form-check-label" for="recordProxied">
+              Über Cloudflare proxyen (nur für A, AAAA und CNAME)
+            </label>
+          </div>
+          
+          <div class="text-end">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">Hinzufügen</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Record Confirmation Modal -->
+<div class="modal fade" id="deleteRecordModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">DNS-Eintrag löschen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        <p>Sind Sie sicher, dass Sie den DNS-Eintrag <strong id="deleteRecordName"></strong> löschen möchten?</p>
+        <p class="text-danger">Warnung: Diese Aktion kann nicht rückgängig gemacht werden.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <form id="deleteRecordForm" method="POST" action="">
+          <button type="submit" class="btn btn-danger">Löschen</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Show/hide proxy option based on record type
+  document.addEventListener('DOMContentLoaded', function() {
+    const recordTypeSelect = document.getElementById('recordType');
+    const proxyCheckbox = document.getElementById('recordProxied');
+    const proxyContainer = proxyCheckbox.closest('.form-check');
+    const contentHelp = document.getElementById('contentHelp');
+    
+    function updateProxyOption() {
+      const selectedType = recordTypeSelect.value;
+      if (selectedType === 'A' || selectedType === 'AAAA' || selectedType === 'CNAME') {
+        proxyContainer.style.display = 'block';
+      } else {
+        proxyContainer.style.display = 'none';
+        proxyCheckbox.checked = false;
+      }
+      
+      // Update content help text
+      switch(selectedType) {
+        case 'A':
+          contentHelp.textContent = 'Für A-Einträge: IPv4-Adresse (z.B. 192.168.1.1)';
+          break;
+        case 'AAAA':
+          contentHelp.textContent = 'Für AAAA-Einträge: IPv6-Adresse (z.B. 2001:db8::1)';
+          break;
+        case 'CNAME':
+          contentHelp.textContent = 'Für CNAME-Einträge: Domainname (z.B. example.com)';
+          break;
+        case 'TXT':
+          contentHelp.textContent = 'Für TXT-Einträge: Textinhalt (z.B. "v=spf1 include:_spf.google.com ~all")';
+          break;
+        case 'MX':
+          contentHelp.textContent = 'Für MX-Einträge: Priorität und Mail-Server (z.B. 10 mail.example.com)';
+          break;
+        case 'NS':
+          contentHelp.textContent = 'Für NS-Einträge: Nameserver (z.B. ns1.example.com)';
+          break;
+      }
+    }
+    
+    recordTypeSelect.addEventListener('change', updateProxyOption);
+    updateProxyOption();
+    
+    // Filter records by type
+    const typeFilters = document.querySelectorAll('.dns-type-filter');
+    const recordsContainer = document.getElementById('dns-records-container');
+    const recordCards = recordsContainer ? recordsContainer.querySelectorAll('.record-card') : [];
+    
+    typeFilters.forEach(filter => {
+      filter.addEventListener('click', function() {
+        const filterType = this.getAttribute('data-filter');
+        
+        // Update active class
+        typeFilters.forEach(f => f.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Filter records
+        recordCards.forEach(card => {
+          const recordType = card.getAttribute('data-type');
+          if (filterType === 'all' || filterType === recordType) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+  
+  function confirmDeleteRecord(recordId, recordName) {
+    document.getElementById('deleteRecordName').textContent = recordName;
+    document.getElementById('deleteRecordForm').action = "{{ url_for('domains_dns_delete_record', zone_id=zone.id, record_id=0) }}".replace('/0', '/' + recordId);
+    new bootstrap.Modal(document.getElementById('deleteRecordModal')).show();
+  }
+</script>
+{% endblock %}
