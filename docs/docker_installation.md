@@ -10,14 +10,57 @@ Diese Anleitung führt Sie durch den Prozess der Installation und Konfiguration 
 
 ## Installation
 
-### 1. Repository klonen
+Es gibt zwei Möglichkeiten, die SwissAirDry-Plattform mit Docker zu installieren: die automatische Installation mit Setup-Skript (empfohlen) oder die manuelle Installation.
+
+### Option A: Automatische Installation (empfohlen)
+
+#### 1. Repository klonen
 
 ```bash
 git clone https://github.com/Arduinoeinsteiger/ERP.git
 cd ERP
 ```
 
-### 2. Docker Compose starten
+#### 2. Setup-Skript ausführen
+
+**Unter Linux/Mac:**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+**Unter Windows:**
+```cmd
+setup.bat
+```
+
+Das Setup-Skript führt automatisch folgende Schritte aus:
+- Überprüft, ob alle erforderlichen Befehle (docker, docker-compose, git) verfügbar sind
+- Erstellt eine .env-Datei mit sicheren Zufallsschlüsseln
+- Stellt sicher, dass die requirements.txt im richtigen Verzeichnis vorhanden ist
+- Bietet an, die Docker-Container zu bauen und zu starten
+- Zeigt den Status der Container an
+
+Folgen Sie einfach den Anweisungen auf dem Bildschirm, um die Installation abzuschließen.
+
+### Option B: Manuelle Installation
+
+#### 1. Repository klonen
+
+```bash
+git clone https://github.com/Arduinoeinsteiger/ERP.git
+cd ERP
+```
+
+#### 2. Umgebungsvariablen konfigurieren
+
+```bash
+cp .env.example .env
+```
+
+Bearbeiten Sie die .env-Datei und passen Sie die Einstellungen nach Bedarf an.
+
+#### 3. Docker Compose starten
 
 ```bash
 docker-compose up -d
@@ -29,7 +72,7 @@ Dieser Befehl startet alle notwendigen Container:
 - postgres (Datenbank)
 - mosquitto (MQTT-Broker)
 
-### 3. Überprüfen der Installation
+#### 4. Überprüfen der Installation
 
 ```bash
 docker-compose ps

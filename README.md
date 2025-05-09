@@ -42,10 +42,33 @@ wget -O - https://raw.githubusercontent.com/Arduinoeinsteiger/ERP/main/install.s
 
 Die SwissAirDry-Plattform kann einfach mit Docker bereitgestellt werden:
 
+#### Automatische Installation (empfohlen):
 ```bash
 # Repository klonen
 git clone https://github.com/Arduinoeinsteiger/ERP.git
 cd ERP
+
+# Setup-Skript ausführen
+# Linux/Mac:
+./setup.sh
+
+# Windows:
+setup.bat
+```
+
+Das Setup-Skript führt folgende Aufgaben aus:
+- Erstellt die `.env`-Datei mit sicheren Zufallsschlüsseln
+- Stellt sicher, dass alle benötigten Dateien vorhanden sind
+- Bietet an, die Docker-Container zu bauen und zu starten
+
+#### Manuelle Installation:
+```bash
+# Repository klonen
+git clone https://github.com/Arduinoeinsteiger/ERP.git
+cd ERP
+
+# .env-Datei erstellen
+cp .env.example .env
 
 # Docker-Container starten
 docker-compose up -d
