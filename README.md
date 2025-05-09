@@ -114,10 +114,20 @@ Eine detaillierte Installationsanleitung finden Sie in der [Installationsanleitu
 - [Benutzerhandbuch](docs/user_guide.md)
 - [Plug & Play Installation](docs/plug_and_play.md)
 - [Docker-Installation](docs/docker_installation.md)
+- [Abhängigkeitsmanagement](docs/dependencies_management.md)
 - [API-Dokumentation](docs/api.md)
 - [BLE-API-Dokumentation](docs/ble_api.md)
 - [BLE-Integration](docs/ble_integration.md)
 - [Firmware-Anleitung](docs/firmware.md)
+
+## Wartungswerkzeuge
+
+- **Installationsbericht erstellen**: `./tools/generate_install_report.sh`
+  - Erzeugt einen detaillierten Bericht über die Installation/das Upgrade
+- **System aktualisieren**: `./tools/update_system.sh`
+  - Führt eine sichere Aktualisierung des Systems durch
+  - Überprüft wichtige Abhängigkeiten wie paho-mqtt
+  - Erstellt automatisch Backups der Konfigurationen
 
 ## Hardware-Unterstützung
 

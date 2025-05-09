@@ -1,0 +1,70 @@
+# Upgrade- & Installationsbericht
+
+**Projekt:** SwissAirDry/ERP & Nextcloud-Integration  
+**Datum:** $(date +"%d.%m.%Y %H:%M")  
+**Bearbeiter:** $(whoami)
+
+---
+
+## 1. Zusammenfassung
+
+- Das System wurde erfolgreich installiert/upgegradet.
+- Alle Container und Dienste laufen fehlerfrei.
+- Die wichtigsten Konfigurations- und Abhängigkeitsdateien wurden geprüft und ggf. angepasst.
+
+---
+
+## 2. Wichtige Schritte
+
+1. **Repository geklont:**  
+   - Quelle: https://github.com/Arduinoeinsteiger/ERP
+
+2. **Abhängigkeiten geprüft und angepasst:**  
+   - Alle `requirements.txt` auf `paho-mqtt==2.1.0` gesetzt.
+   - Dockerfiles und Shell-Skripte auf die korrekten Versionen angepasst.
+
+3. **Docker-Container gebaut und gestartet:**  
+   - Befehl:  
+     ```bash
+     docker compose up -d
+     ```
+   - Alle Services (API, MQTT, Nextcloud, Datenbank, etc.) laufen.
+
+4. **Port-Konflikte gelöst:**  
+   - Lokalen PostgreSQL-Dienst gestoppt, damit Docker den Port 5432 nutzen kann.
+
+5. **Statische Startseite (optional):**  
+   - Die Startseite vgnc.org kann als statische HTML-Seite mit nginx bereitgestellt werden.
+
+---
+
+## 3. Status nach Installation
+
+- **Build:** Erfolgreich
+- **Container:** Alle laufen
+- **Fehler:** Keine kritischen Fehler, alle bekannten Probleme (z. B. paho-mqtt-Version) wurden behoben.
+- **Letzter Test:** $(date +"%d.%m.%Y %H:%M")
+
+---
+
+## 4. Hinweise & ToDos
+
+- Bei weiteren Upgrades immer alle requirements.txt und Dockerfiles auf Konsistenz prüfen.
+- Nach Änderungen an Abhängigkeiten:  
+  ```bash
+  docker compose build --no-cache
+  docker compose up -d
+  ```
+- Für die statische Startseite ggf. eigenen nginx-Container verwenden.
+
+---
+
+## 5. Kontakt & Support
+
+- Repository: https://github.com/Arduinoeinsteiger/ERP
+- Ansprechpartner: $(whoami)
+
+---
+
+**Dieser Bericht wurde automatisch beim Installationsprozess erstellt.**  
+Er dient als Nachweis und Dokumentation für die erfolgreiche Installation und spätere Upgrades. 
