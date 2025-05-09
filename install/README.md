@@ -1,8 +1,18 @@
-# SwissAirDry - Installationsanleitung
+# SwissAirDry v1.0.0 - Domainverwaltung
 
-Diese Installationsscripts installieren die Domainverwaltung und alle benötigten Abhängigkeiten für das SwissAirDry-Projekt.
+Diese Installationsdateien sind Teil des SwissAirDry v1.0.0 Releases, das die Domainverwaltung mit Cloudflare-Integration implementiert.
 
-## Für Linux/Mac
+## Features
+
+- Domain-Management mit Cloudflare API-Integration
+- Umfassende DNS-Eintrags-Verwaltung
+- Service-Mapping für verschiedene Anwendungskomponenten
+- Dunkles Design für moderne Benutzeroberfläche
+- Automatisches Setup für mehrere Dienste
+
+## Installation
+
+### Für Linux/Mac
 
 Führen Sie das folgende Kommando im Terminal aus:
 
@@ -11,7 +21,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-## Für Windows
+### Für Windows
 
 Doppelklicken Sie auf `install.bat` oder führen Sie es in der Kommandozeile aus:
 
@@ -45,7 +55,7 @@ Falls die automatische Installation fehlschlägt, können Sie die folgenden Schr
    pip install flask sqlalchemy requests paho-mqtt==2.1.0 bleak psycopg2-binary gunicorn jinja2
    ```
 
-2. Kopieren Sie das `domain_management`-Verzeichnis in das Stammverzeichnis Ihrer Anwendung.
+2. Stellen Sie sicher, dass die Domain-Management-Module korrekt installiert sind.
 
 3. Fügen Sie den Cloudflare API-Token zur `.env`-Datei hinzu:
    ```
@@ -62,8 +72,14 @@ Falls die automatische Installation fehlschlägt, können Sie die folgenden Schr
    models.Base.metadata.create_all(bind=engine)
    ```
 
+## Release-Informationen
+
+- **Version**: v1.0.0
+- **Commit-Hash**: f307b0c
+- **Release-Tag**: ins
+
 ## Support
 
 Bei Problemen oder Fragen besuchen Sie bitte:
-- Die Dokumentation in `domain_management/README.md`
+- Die Dokumentation im Code
 - Das GitHub-Repository: [https://github.com/Arduinoeinsteiger/ERP](https://github.com/Arduinoeinsteiger/ERP)

@@ -1,106 +1,169 @@
 #!/bin/bash
-# SwissAirDry - Installation & Upgrade Report Generator
-# Dieses Skript erstellt einen detaillierten Installations- und Upgrade-Bericht
+# SwissAirDry - Installations-Report-Generator
+# Dieses Skript generiert einen Bericht über die Systemumgebung und Installationsstatus
+# von SwissAirDry v1.0.0
 
-# Color definitions
+# Variablen
+REPORT_FILE="swissairdry_install_report_$(date +%Y%m%d_%H%M%S).txt"
+
+# Farben
+RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${YELLOW}Erstelle Installations- und Upgrade-Bericht...${NC}"
+# Funktion zum Schreiben in die Report-Datei und auf die Konsole
+log() {
+    echo -e "$1" | tee -a "$REPORT_FILE"
+}
 
-# Aktuelles Datum und Benutzer
-CURRENT_DATE=$(date +"%d.%m.%Y %H:%M")
-CURRENT_USER=$(whoami)
+# Report-Header
+log "============================================"
+log "       SwissAirDry Installation Report      "
+log "             Version: v1.0.0                "
+log "============================================"
+log "Datum: $(date)"
+log "Hostname: $(hostname)"
+log ""
 
-# Prüfe Docker-Status
-DOCKER_STATUS="Nicht geprüft"
-if command -v docker &> /dev/null && docker ps &> /dev/null; then
-    CONTAINERS_RUNNING=$(docker ps --format "{{.Names}}" 2>/dev/null | grep -c "swissairdry")
-    if [ "$CONTAINERS_RUNNING" -gt 0 ]; then
-        DOCKER_STATUS="Aktiv (${CONTAINERS_RUNNING} Container laufen)"
+# Betriebssystem-Informationen
+log "## Betriebssystem"
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    log "Name: $NAME"
+    log "Version: $VERSION"
+    log "ID: $ID"
+elif [ -f /etc/lsb-release ]; then
+    . /etc/lsb-release
+    log "Distribution: $DISTRIB_ID"
+    log "Release: $DISTRIB_RELEASE"
+elif [ "$(uname)" == "Darwin" ]; then
+    log "macOS Version: $(sw_vers -productVersion)"
+else
+    log "Betriebssystem konnte nicht ermittelt werden"
+fi
+
+log "Kernel: $(uname -r)"
+log "Architektur: $(uname -m)"
+log ""
+
+# Python-Umgebung
+log "## Python-Umgebung"
+if command -v python3 &> /dev/null; then
+    log "Python Version: $(python3 --version 2>&1)"
+    log "Python Pfad: $(which python3)"
+    
+    if command -v pip3 &> /dev/null; then
+        log "Pip Version: $(pip3 --version 2>&1)"
+        log "Installierte Pakete:"
+        pip3 list | grep -E "flask|sqlalchemy|requests|paho-mqtt|bleak|psycopg2|gunicorn|jinja2" | while read line; do
+            log "  $line"
+        done
     else
-        DOCKER_STATUS="Installiert, aber keine SwissAirDry-Container aktiv"
+        log "Pip ist nicht installiert"
     fi
 else
-    DOCKER_STATUS="Nicht verfügbar oder keine Berechtigungen"
+    log "Python ist nicht installiert"
+fi
+log ""
+
+# Systemressourcen
+log "## Systemressourcen"
+if command -v free &> /dev/null; then
+    log "Arbeitsspeicher:"
+    free -h | grep -v + | while read line; do
+        log "  $line"
+    done
 fi
 
-# Prüfe requirements.txt auf paho-mqtt-Version
-MQTT_VERSION="Nicht gefunden"
-if [ -f "backup/attached_assets/requirements.txt" ]; then
-    MQTT_VERSION=$(grep "paho-mqtt" backup/attached_assets/requirements.txt || echo "Nicht gefunden")
+if command -v df &> /dev/null; then
+    log "Festplattenspeicher:"
+    df -h / | while read line; do
+        log "  $line"
+    done
+fi
+log ""
+
+# Netzwerk-Informationen
+log "## Netzwerk"
+log "Hostname: $(hostname)"
+if command -v ip &> /dev/null; then
+    log "IP-Adressen:"
+    ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | while read line; do
+        log "  $line"
+    done
+elif command -v ifconfig &> /dev/null; then
+    log "IP-Adressen:"
+    ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | while read line; do
+        log "  $line"
+    done
+fi
+log ""
+
+# Docker-Status
+log "## Docker-Status"
+if command -v docker &> /dev/null; then
+    log "Docker Version: $(docker --version)"
+    log "Docker Compose installiert: $(command -v docker-compose &> /dev/null && echo 'Ja' || echo 'Nein')"
+    
+    # Prüfen, ob Docker-Daemon läuft
+    if docker info &> /dev/null; then
+        log "Docker-Daemon: Läuft"
+        
+        # SwissAirDry Docker-Container auflisten
+        log "SwissAirDry Container:"
+        docker ps --filter "name=swissairdry" | while read line; do
+            log "  $line"
+        done
+    else
+        log "Docker-Daemon: Gestoppt"
+    fi
+else
+    log "Docker ist nicht installiert"
+fi
+log ""
+
+# Datenbank-Status
+log "## Datenbank-Status"
+if command -v psql &> /dev/null; then
+    log "PostgreSQL-Client installiert: Ja"
+    # Hier könnten weitere PostgreSQL-spezifische Prüfungen folgen
+else
+    log "PostgreSQL-Client installiert: Nein"
+fi
+log ""
+
+# SwissAirDry-Konfiguration
+log "## SwissAirDry-Konfiguration"
+# Prüfen, ob .env-Datei existiert
+if [ -f ../.env ]; then
+    log ".env-Datei: Vorhanden"
+    # Prüfen, ob CLOUDFLARE_API_TOKEN konfiguriert ist (ohne den Wert anzuzeigen)
+    if grep -q "CLOUDFLARE_API_TOKEN=" ../.env && ! grep -q "CLOUDFLARE_API_TOKEN=$" ../.env; then
+        log "Cloudflare API-Token: Konfiguriert"
+    else
+        log "Cloudflare API-Token: Nicht konfiguriert"
+    fi
+else
+    log ".env-Datei: Nicht vorhanden"
 fi
 
-# Erstelle Bericht
-cat > "INSTALL_REPORT.md" << EOL
-# Upgrade- & Installationsbericht
+# Prüfen, ob Domain-Management-Module vorhanden sind
+if [ -d ../domain_management ]; then
+    log "Domain-Management-Module: Installiert"
+else
+    log "Domain-Management-Module: Nicht installiert"
+fi
+log ""
 
-**Projekt:** SwissAirDry/ERP & Nextcloud-Integration  
-**Datum:** ${CURRENT_DATE}  
-**Bearbeiter:** ${CURRENT_USER}
+# Zusammenfassung
+log "## Zusammenfassung"
+log "SwissAirDry v1.0.0 Installationsbericht wurde erstellt."
+log "Für Support besuchen Sie: https://github.com/Arduinoeinsteiger/ERP"
+log ""
+log "Report-Datei: $REPORT_FILE"
 
----
-
-## 1. Zusammenfassung
-
-- Das System wurde erfolgreich installiert/upgegradet.
-- Docker-Status: ${DOCKER_STATUS}
-- Die wichtigsten Konfigurations- und Abhängigkeitsdateien wurden geprüft und ggf. angepasst.
-
----
-
-## 2. Wichtige Schritte
-
-1. **Repository verwendet:**  
-   - Quelle: https://github.com/Arduinoeinsteiger/ERP
-   - Lokaler Pfad: $(pwd)
-
-2. **Abhängigkeiten geprüft und angepasst:**  
-   - paho-mqtt Version: \`${MQTT_VERSION}\`
-   - Dockerfiles verwenden die korrekten Pfade und Versionen.
-   $(grep -r "requirements.txt" Dockerfile* 2>/dev/null | sed 's/^/   - /')
-
-3. **Docker-Konfiguration:**  
-   - Datei: docker-compose.yml
-   - Services: $(grep -A1 "services:" docker-compose.yml | grep -v "services:" | sed 's/^[ \t]*//' | sed 's/^/     /')
-   - Ports: $(grep -A1 "ports:" docker-compose.yml | grep -v "ports:" | sed 's/^[ \t]*//' | sed 's/^/     /')
-
----
-
-## 3. Status nach Installation
-
-- **Build:** $([ "$DOCKER_STATUS" == "Nicht verfügbar oder keine Berechtigungen" ] && echo "Nicht verfügbar" || echo "Erfolgreich")
-- **Container:** ${DOCKER_STATUS}
-- **Fehler:** Keine kritischen Fehler, alle bekannten Probleme (z. B. paho-mqtt-Version) wurden behoben.
-- **Letzter Test:** ${CURRENT_DATE}
-
----
-
-## 4. Hinweise & ToDos
-
-- Bei weiteren Upgrades immer alle requirements.txt und Dockerfiles auf Konsistenz prüfen.
-- Nach Änderungen an Abhängigkeiten:  
-  \`\`\`bash
-  docker compose build --no-cache
-  docker compose up -d
-  \`\`\`
-- Für die Abhängigkeitsverwaltung siehe: [docs/dependencies_management.md](docs/dependencies_management.md)
-- Bei BLE-Funktionalität: physische Bluetooth-Hardware wird benötigt.
-
----
-
-## 5. Kontakt & Support
-
-- Repository: https://github.com/Arduinoeinsteiger/ERP
-- Ansprechpartner: ${CURRENT_USER}
-
----
-
-**Dieser Bericht wurde automatisch erstellt am ${CURRENT_DATE}.**  
-Er dient als Nachweis und Dokumentation für die erfolgreiche Installation/Upgrade.
-EOL
-
-echo -e "${GREEN}Bericht erstellt: INSTALL_REPORT.md${NC}"
-echo "Um ihn anzuzeigen: cat INSTALL_REPORT.md"
-echo ""
+# Ausgabe des Dateipfades
+echo -e "${GREEN}Installationsbericht wurde erstellt: ${YELLOW}$REPORT_FILE${NC}"
+echo -e "${GREEN}Sie können diesen Bericht für Support-Anfragen verwenden.${NC}"
