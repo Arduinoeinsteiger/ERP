@@ -1,0 +1,71 @@
+Hier ist dein **finaler Mangelbericht** für das Projekt/Repository. Diesen Text kannst du direkt als GitHub-Issue, E-Mail an das Projektteam oder als interne Doku verwenden.
+
+---
+
+# Finaler Mangelbericht – SwissAirDry/ERP & Nextcloud-Integration
+
+**Datum:** 09.05.2025  
+**Bearbeiter:** Valentino
+
+---
+
+## 1. Zusammenfassung
+
+Trotz umfangreicher Verbesserungen und Anpassungen an den requirements.txt-Dateien sowie der Docker-Konfiguration ist das Projekt weiterhin nicht vollständig lauffähig. Der Docker-Build bricht ab, weil im Build-Kontext (insbesondere für den Service `mqtt-bridge`) immer noch eine nicht kompatible Version von `paho-mqtt` verlangt wird.
+
+---
+
+## 2. Festgestellte Mängel
+
+### a) **Inkonsequente requirements.txt**
+- Im Projekt existieren mehrere requirements.txt (im Hauptverzeichnis, in Unterordnern wie `backup/attached_assets/`, `nextcloud/apps/swissairdry/daemon/`, `backup/attached_assets/api/` etc.).
+- Trotz Anpassung auf `paho-mqtt==2.1.0` wird beim Build weiterhin `paho-mqtt>=2.2.1` verlangt.
+- Vermutlich existiert im Build-Kontext (z. B. in `mqtt_bridge/` oder durch einen COPY-Befehl im Dockerfile) noch eine weitere, nicht angepasste requirements.txt.
+
+### b) **Fehlerhafte Docker-Builds**
+- Der Build von `api` und `mqtt-bridge` schlägt fehl mit:
+  ```
+  ERROR: Could not find a version that satisfies the requirement paho-mqtt>=2.2.1
+  ```
+- Ursache: Die Version 2.2.1 (oder höher) existiert nicht auf PyPI, aktuell ist 2.1.0 die höchste verfügbare Version.
+
+### c) **Unklare Dockerfile-Referenzen**
+- Die Dockerfiles (insbesondere für `mqtt-bridge`) referenzieren requirements.txt, ohne dass klar ist, welche Datei im Build-Kontext tatsächlich verwendet wird.
+- Es fehlt eine zentrale, eindeutig referenzierte requirements.txt.
+
+### d) **Dokumentationslücken**
+- In der README.md und den Docker-Dokumentationen fehlt ein klarer Hinweis auf die Problematik mit den requirements.txt und der paho-mqtt-Version.
+- Es gibt keine Anleitung, wie man requirements.txt konsistent hält oder welche Datei für welchen Service relevant ist.
+
+---
+
+## 3. Verbesserungsvorschläge
+
+1. **Zentrale requirements.txt verwenden:**  
+   - Eine einzige, zentrale requirements.txt im Hauptverzeichnis, die von allen relevanten Dockerfiles verwendet wird.
+   - Alle anderen requirements.txt entfernen oder als Beispiel/Entwicklungsversion kennzeichnen.
+
+2. **Dockerfiles anpassen:**  
+   - Sicherstellen, dass alle Dockerfiles explizit auf die zentrale requirements.txt zugreifen (z. B. `COPY ./requirements.txt .`).
+
+3. **Alle requirements.txt auf paho-mqtt==2.1.0 setzen:**  
+   - Keine Version >=2.2.1 verwenden, da diese nicht auf PyPI verfügbar ist.
+
+4. **Dokumentation ergänzen:**  
+   - In README.md und DOCKER_INSTALLATION.md klar beschreiben, welche requirements.txt verwendet wird und wie man sie ggf. aktualisiert.
+   - Hinweis auf die Problematik mit paho-mqtt und die Lösung dokumentieren.
+
+5. **Automatisierte Tests einrichten:**  
+   - Einfache CI/CD-Pipeline (z. B. GitHub Actions), die bei jedem Commit den Docker-Build testet.
+
+---
+
+## 4. Fazit
+
+Das Projekt ist aktuell nicht „out of the box“ lauffähig.  
+Die Hauptursache ist die inkonsistente und teils fehlerhafte Handhabung der requirements.txt und der verwendeten Python-Pakete.  
+Mit den oben genannten Maßnahmen kann das Projekt stabilisiert und für andere Nutzer deutlich zugänglicher gemacht werden.
+
+---
+
+**Bei Rückfragen oder für weitere Details stehe ich gerne zur Verfügung!**
