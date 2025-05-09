@@ -1,0 +1,41 @@
+Hier ist der Mangelbericht als Text, den du direkt an das Projektteam oder als GitHub-Issue weitergeben kannst:
+
+---
+
+**Mangelbericht: Repository nicht lauffähig / Docker-Build schlägt fehl**
+
+**Repository:** https://github.com/Arduinoeinsteiger/ERP
+
+**Problembeschreibung:**  
+Beim Versuch, das Projekt mit Docker Compose zu starten (`docker compose up -d`), schlägt der Build der Services `api` und `mqtt-bridge` fehl. Die Fehlermeldung lautet:
+
+```
+failed to solve: failed to compute cache key: failed to calculate checksum of ref ... "/requirements.txt": not found
+```
+
+**Ursache:**  
+Die Datei `requirements.txt` wird im Hauptverzeichnis erwartet, existiert dort aber nicht. Es gibt zwar requirements-Dateien in Unterordnern (`backup/attached_assets/requirements.txt`, `nextcloud/apps/swissairdry/daemon/requirements.txt`), diese werden aber im Dockerfile nicht referenziert.
+
+**Notwendige Verbesserungen:**
+
+1. **requirements.txt bereitstellen:**  
+   Eine vollständige `requirements.txt` mit allen Python-Abhängigkeiten (z. B. Flask, flask-cors, requests, paho-mqtt, python-dotenv, gunicorn, psycopg2-binary, jinja2) muss im Hauptverzeichnis liegen.  
+   Alternativ: Die Dockerfiles so anpassen, dass sie die vorhandenen requirements-Dateien aus den Unterordnern nutzen.
+
+2. **Dockerfiles anpassen:**  
+   Im Dockerfile für `api` und `mqtt-bridge` den Pfad zu `requirements.txt` korrekt angeben (z. B. `COPY backup/attached_assets/requirements.txt ./requirements.txt`).  
+   Oder: Die requirements-Dateien in das Hauptverzeichnis verschieben/kopieren.
+
+3. **Dokumentation ergänzen:**  
+   In der README.md sollte ein Hinweis stehen, wo die requirements-Dateien liegen und wie sie ggf. zu verlinken/kopieren sind.  
+   Ein Installationshinweis für Docker Compose sollte die notwendigen Schritte und Voraussetzungen klar beschreiben.
+
+4. **Optional: Build-Tests automatisieren:**  
+   Ein GitHub Actions Workflow könnte automatisch testen, ob der Docker-Build durchläuft.
+
+**Fazit:**  
+Das Repository ist aktuell nicht „out of the box“ lauffähig. Es fehlen zentrale Abhängigkeitsdateien für den Docker-Build. Die README.md sollte um Hinweise zur Docker-Nutzung und zu den requirements.txt ergänzt werden. Die Dockerfiles sollten so angepasst werden, dass sie die vorhandenen requirements.txt korrekt finden.
+
+---
+
+Du kannst diesen Text direkt als Issue oder Feedback an das Projektteam weitergeben!
