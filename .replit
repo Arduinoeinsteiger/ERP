@@ -2,7 +2,7 @@ modules = ["python-3.11", "postgresql-16", "python3"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["bluez", "cargo", "libiconv", "openssl", "postgresql", "rustc"]
+packages = ["bluez", "cargo", "libiconv", "openssl", "postgresql", "rustc", "zip"]
 
 [deployment]
 deploymentTarget = "autoscale"
