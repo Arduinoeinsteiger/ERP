@@ -38,6 +38,32 @@ wget -O - https://raw.githubusercontent.com/Arduinoeinsteiger/ERP/main/install.s
 1. Laden Sie [install.bat](https://raw.githubusercontent.com/Arduinoeinsteiger/ERP/main/install.bat) herunter
 2. Führen Sie die Datei als Administrator aus
 
+### Docker-Installation
+
+Die SwissAirDry-Plattform kann einfach mit Docker bereitgestellt werden:
+
+```bash
+# Repository klonen
+git clone https://github.com/Arduinoeinsteiger/ERP.git
+cd ERP
+
+# Docker-Container starten
+docker-compose up -d
+```
+
+#### Docker-Konfiguration
+
+Die Plattform besteht aus mehreren Docker-Containern:
+- **swissairdry**: Der Hauptcontainer mit der Web-Anwendung
+- **swissairdry-bridge**: Der MQTT-Bridge-Container für Geräteverbindungen
+- **postgres**: PostgreSQL-Datenbankserver
+- **mosquitto**: MQTT-Broker für die Gerätekommunikation
+
+Hinweise:
+- BLE-Funktionalität erfordert Zugriff auf Bluetooth-Hardware des Host-Systems
+- In virtuellen Umgebungen ohne Bluetooth-Hardware arbeitet die Plattform im eingeschränkten Modus
+- Die Docker-Konfiguration verwendet die requirements.txt-Datei aus dem Verzeichnis backup/attached_assets/
+
 ### Manuelle Installation
 
 Eine detaillierte Installationsanleitung finden Sie in der [Installationsanleitung](docs/installation.md).
@@ -49,6 +75,7 @@ Eine detaillierte Installationsanleitung finden Sie in der [Installationsanleitu
 - [BLE-API-Dokumentation](docs/ble_api.md)
 - [BLE-Integration](docs/ble_integration.md)
 - [Firmware-Anleitung](docs/firmware.md)
+- [Docker-Installation](docs/docker_installation.md)
 
 ## Hardware-Unterstützung
 

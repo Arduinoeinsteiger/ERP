@@ -111,6 +111,8 @@ class BLEService:
         while self.running:
             try:
                 await self._scan_for_devices()
+            except FileNotFoundError:
+                logger.error("BLE-Hardware nicht verfügbar oder nicht unterstützt. BLE-Funktionalität ist eingeschränkt. In Docker- oder virtuellen Umgebungen ohne physischen Bluetooth-Adapter wird diese Meldung erwartet.")
             except Exception as e:
                 logger.error(f"Fehler beim Scannen nach BLE-Geräten: {e}")
             
