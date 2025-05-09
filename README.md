@@ -27,7 +27,25 @@ Die SwissAirDry-Plattform ist eine umfassende IoT-Lösung zur Überwachung und S
 
 ## Installation
 
-### Schnellinstallation
+### Plug & Play Installation (empfohlen)
+
+Die einfachste und schnellste Möglichkeit, SwissAirDry zu installieren. Diese Option richtet alles vollautomatisch ein, ohne manuelle Eingriffe.
+
+#### Linux/Mac:
+```bash
+# Als normaler Benutzer ausführen, sudo-Rechte werden bei Bedarf automatisch angefordert
+wget -O - https://raw.githubusercontent.com/Arduinoeinsteiger/ERP/main/swissairdry-quickstart.sh | bash
+```
+
+#### Windows:
+1. Laden Sie [swissairdry-quickstart.bat](https://raw.githubusercontent.com/Arduinoeinsteiger/ERP/main/swissairdry-quickstart.bat) herunter
+2. Führen Sie die Datei als Administrator aus
+
+[Detaillierte Anleitung zur Plug & Play Installation](docs/plug_and_play.md)
+
+### Klassische Schnellinstallation
+
+Die traditionelle Installationsmethode für erfahrene Benutzer.
 
 #### Linux/Mac:
 ```bash
@@ -94,11 +112,12 @@ Eine detaillierte Installationsanleitung finden Sie in der [Installationsanleitu
 ## Dokumentation
 
 - [Benutzerhandbuch](docs/user_guide.md)
+- [Plug & Play Installation](docs/plug_and_play.md)
+- [Docker-Installation](docs/docker_installation.md)
 - [API-Dokumentation](docs/api.md)
 - [BLE-API-Dokumentation](docs/ble_api.md)
 - [BLE-Integration](docs/ble_integration.md)
 - [Firmware-Anleitung](docs/firmware.md)
-- [Docker-Installation](docs/docker_installation.md)
 
 ## Hardware-Unterstützung
 
