@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block title %}Domain-Verwaltung - SwissAirDry{% endblock %}
+
+{% block styles %}
+<style>
+  .dashboard-section {
+    background-color: var(--bg-card);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .domain-card {
+    background-color: var(--bg-card-secondary);
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--primary);
+  }
+  .domain-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  .status-active {
+    background-color: var(--success-light);
+    color: var(--success);
+  }
+  .status-inactive {
+    background-color: var(--danger-light);
+    color: var(--danger);
+  }
+  .status-pending {
+    background-color: var(--warning-light);
+    color: var(--warning);
+  }
+  .connection-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .service-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .service-table th, 
+  .service-table td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .service-table tr:last-child td {
+    border-bottom: none;
+  }
+  .service-table th {
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+  }
+  .action-button {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  .nameserver-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .nameserver-item {
+    background-color: var(--info-light);
+    color: var(--info);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-family: monospace;
+  }
+  .cloudflare-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    margin-top: 1rem;
+  }
+  .cloudflare-logo {
+    display: inline-block;
+    height: 30px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .info-card {
+    background-color: var(--bg-card-secondary);
+    border-radius: 6px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .info-card-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+  .info-card-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  .loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: spin 1s ease-in-out infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="mb-3">Domain-Verwaltung</h1>
+      <p class="text-muted">Verwalten Sie Domains und DNS-Einträge für Ihre SwissAirDry-Plattform.</p>
+    </div>
+  </div>
+
+  <div class="dashboard-section">
+    <div class="cloudflare-info">
+      <img src="https://www.cloudflare.com/img/logo-cloudflare-dark.svg" alt="Cloudflare Logo" class="cloudflare-logo">
+      <div>
+        <h3 class="h5 mb-1">Cloudflare Integration</h3>
+        <div class="connection-status">
+          <span class="status-badge {% if cloudflare_connected %}status-active{% else %}status-inactive{% endif %}">
+            {% if cloudflare_connected %}
+              Verbunden
+            {% else %}
+              Nicht verbunden
+            {% endif %}
+          </span>
+          {% if not cloudflare_connected %}
+            <a href="{{ url_for('domains_connect_cloudflare') }}" class="btn btn-sm btn-primary">Verbinden</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-title">Öffentliche IP-Adresse</div>
+        <div class="info-card-value">{{ public_ip or 'Nicht erkannt' }}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Verwaltete Domains</div>
+        <div class="info-card-value">{{ zones|length }}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Dienst-Mappings</div>
+        <div class="info-card-value">{{ service_mappings|count }}</div>
+      </div>
+    </div>
+
+    {% if cloudflare_connected %}
+      <div class="d-flex justify-content-end">
+        <a href="{{ url_for('domains_import') }}" class="btn btn-outline-primary">
+          Domains aus Cloudflare importieren
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if zones %}
+    <div class="dashboard-section">
+      <h2 class="h4 mb-3">Verwaltete Domains</h2>
+
+      {% for zone in zones %}
+        <div class="domain-card">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h3 class="h5 mb-1">{{ zone.name }}</h3>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="status-badge {% if zone.status == 'active' %}status-active{% else %}status-pending{% endif %}">
+                  {{ zone.status }}
+                </span>
+                {% if zone.is_primary %}
+                  <span class="status-badge status-active">Primär</span>
+                {% endif %}
+              </div>
+              <div class="nameserver-list">
+                {% for ns in zone.nameservers %}
+                  <div class="nameserver-item">{{ ns }}</div>
+                {% endfor %}
+              </div>
+            </div>
+            <div>
+              <span class="text-muted small">DNS-Einträge: {{ zone.dns_records_count }}</span><br>
+              <span class="text-muted small">Service-Mappings: {{ zone.service_mappings_count }}</span>
+            </div>
+          </div>
+          <div class="domain-actions">
+            <a href="{{ url_for('domains_view', zone_id=zone.id) }}" class="btn btn-sm btn-primary">Details</a>
+            <a href="{{ url_for('domains_configure_services', zone_id=zone.id) }}" class="btn btn-sm btn-outline-secondary">Dienste konfigurieren</a>
+            <a href="{{ url_for('domains_dns_records', zone_id=zone.id) }}" class="btn btn-sm btn-outline-secondary">DNS-Einträge</a>
+            <button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteZone({{ zone.id }}, '{{ zone.name }}')">Entfernen</button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% elif cloudflare_connected %}
+    <div class="dashboard-section text-center py-5">
+      <i class="fas fa-globe fa-3x mb-3 text-muted"></i>
+      <h3 class="h4 mb-3">Keine Domains gefunden</h3>
+      <p class="text-muted mb-4">Sie haben noch keine Domains zu Ihrer SwissAirDry-Plattform hinzugefügt.</p>
+      <a href="{{ url_for('domains_import') }}" class="btn btn-primary">Domains aus Cloudflare importieren</a>
+    </div>
+  {% else %}
+    <div class="dashboard-section text-center py-5">
+      <i class="fas fa-link-slash fa-3x mb-3 text-muted"></i>
+      <h3 class="h4 mb-3">Nicht mit Cloudflare verbunden</h3>
+      <p class="text-muted mb-4">Verbinden Sie zunächst Ihr Cloudflare-Konto, um Domains zu verwalten.</p>
+      <a href="{{ url_for('domains_connect_cloudflare') }}" class="btn btn-primary">Cloudflare verbinden</a>
+    </div>
+  {% endif %}
+
+  {% if service_mappings %}
+    <div class="dashboard-section">
+      <h2 class="h4 mb-3">Dienst-Mapping</h2>
+      <table class="service-table">
+        <thead>
+          <tr>
+            <th>Dienst</th>
+            <th>Domain</th>
+            <th>HTTPS</th>
+            <th>Status</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for service_name, mappings in service_mappings.items() %}
+            {% for mapping in mappings %}
+              <tr>
+                <td>
+                  <strong>{{ service_name }}</strong>
+                </td>
+                <td>
+                  <a href="{% if mapping.https_enabled %}https{% else %}http{% endif %}://{{ mapping.full_domain }}" target="_blank">
+                    {{ mapping.full_domain }}
+                  </a>
+                </td>
+                <td>
+                  {% if mapping.https_enabled %}
+                    <i class="fas fa-lock text-success" title="HTTPS aktiviert"></i>
+                  {% else %}
+                    <i class="fas fa-lock-open text-warning" title="HTTPS deaktiviert"></i>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="status-badge status-active">Aktiv</span>
+                </td>
+                <td>
+                  <a href="{{ url_for('domains_edit_mapping', service=service_name, zone_name=mapping.zone_name) }}" class="action-button btn-outline-secondary">
+                    <i class="fas fa-pencil-alt"></i>
+                  </a>
+                  <button class="action-button btn-outline-danger" onclick="confirmDeleteMapping('{{ service_name }}', '{{ mapping.zone_name }}')">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </td>
+              </tr>
+            {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Delete Zone Confirmation Modal -->
+<div class="modal fade" id="deleteZoneModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Domain entfernen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        <p>Sind Sie sicher, dass Sie die Domain <strong id="deleteZoneName"></strong> entfernen möchten?</p>
+        <p class="text-danger">Warnung: Diese Aktion entfernt die Domain nur aus der SwissAirDry-Plattform, nicht aus Ihrem Cloudflare-Konto.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <form id="deleteZoneForm" method="POST" action="">
+          <button type="submit" class="btn btn-danger">Entfernen</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Mapping Confirmation Modal -->
+<div class="modal fade" id="deleteMappingModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Dienst-Mapping entfernen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        <p>Sind Sie sicher, dass Sie das Mapping für <strong id="deleteMappingService"></strong> auf <strong id="deleteMappingZone"></strong> entfernen möchten?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <form id="deleteMappingForm" method="POST" action="">
+          <button type="submit" class="btn btn-danger">Entfernen</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function confirmDeleteZone(zoneId, zoneName) {
+    document.getElementById('deleteZoneName').textContent = zoneName;
+    document.getElementById('deleteZoneForm').action = "{{ url_for('domains_delete') }}/" + zoneId;
+    new bootstrap.Modal(document.getElementById('deleteZoneModal')).show();
+  }
+
+  function confirmDeleteMapping(serviceName, zoneName) {
+    document.getElementById('deleteMappingService').textContent = serviceName;
+    document.getElementById('deleteMappingZone').textContent = zoneName;
+    document.getElementById('deleteMappingForm').action = "{{ url_for('domains_delete_mapping') }}?service=" + serviceName + "&zone=" + zoneName;
+    new bootstrap.Modal(document.getElementById('deleteMappingModal')).show();
+  }
+</script>
+{% endblock %}
