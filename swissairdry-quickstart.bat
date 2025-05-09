@@ -1,230 +1,128 @@
 @echo off
-:: SwissAirDry - Quick Start Script (Plug & Play) für Windows
-:: Dieses Skript bietet eine komplett automatisierte Einrichtung der SwissAirDry-Plattform
+REM SwissAirDry - Quickstart Script
+REM Startet die SwissAirDry-Plattform mit allen Komponenten
 
-TITLE SwissAirDry Plug & Play Setup
-
-:: Admin-Rechte prüfen
-NET SESSION >nul 2>&1
-IF %ERRORLEVEL% NEQ 0 (
-    echo Administrator-Rechte werden benötigt.
-    echo Bitte dieses Skript als Administrator ausführen.
-    pause
-    exit
-)
-
-cls
-echo ================================================
-echo        SwissAirDry Plug ^& Play Setup
-echo ================================================
-echo.
-echo Dieses Skript richtet SwissAirDry vollautomatisch ein.
-echo In wenigen Minuten ist Ihr System einsatzbereit.
-echo Keine manuellen Eingriffe erforderlich!
+echo ============================================
+echo        SwissAirDry Quickstart v1.0.0       
+echo ============================================
 echo.
 
-:: Erforderliche Programme prüfen
-echo Prüfe erforderliche Programme...
+REM Aktualisierung prüfen
+if "%1"=="--update" goto update
+if "%1"=="-u" goto update
+goto continue
 
-:: Docker prüfen/installieren
-where docker >nul 2>&1
-IF %ERRORLEVEL% NEQ 0 (
-    echo Docker wird benötigt, aber ist nicht installiert.
-    echo Bitte installieren Sie Docker Desktop von:
-    echo https://www.docker.com/products/docker-desktop
-    echo und führen Sie dieses Skript erneut aus.
-    pause
-    exit
-)
-
-:: Git prüfen/installieren
-where git >nul 2>&1
-IF %ERRORLEVEL% NEQ 0 (
-    echo Git wird benötigt, aber ist nicht installiert.
-    echo Installiere Git...
-    powershell -Command "Start-Process -Wait -FilePath winget -ArgumentList 'install -e --id Git.Git'"
-)
-
-echo Alle erforderlichen Programme sind verfügbar.
-
-:: Arbeitsverzeichnis erstellen
-set INSTALL_DIR=C:\SwissAirDry
-echo Erstelle Installationsverzeichnis...
-if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
-cd /d "%INSTALL_DIR%"
-
-:: Repository klonen oder aktualisieren
-if not exist "%INSTALL_DIR%\.git" (
-    echo Lade SwissAirDry herunter...
-    git clone https://github.com/Arduinoeinsteiger/ERP.git .
+:update
+echo Aktualisierung wird gestartet...
+if exist "tools\update_system.bat" (
+    call tools\update_system.bat
 ) else (
-    echo Aktualisiere bestehende Installation...
-    git pull
+    echo [FEHLER] Update-Script nicht gefunden.
+    echo Bitte führen Sie die Aktualisierung manuell durch.
 )
+echo.
 
-:: Umgebungsvariablen konfigurieren
-echo Konfiguriere Umgebung...
-copy .env.example .env
-
-:: Sichere Schlüssel generieren
-echo Generiere sichere Schlüssel...
-set "CHARS=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-set "FLASK_SECRET_KEY="
-for /L %%i in (1,1,32) do call :append_random_char FLASK_SECRET_KEY
-
-:: Update the .env file with the new secret key
-powershell -Command "(Get-Content .env) -replace 'FLASK_SECRET_KEY=.*', 'FLASK_SECRET_KEY=%FLASK_SECRET_KEY%' | Set-Content .env"
-
-:: Generate a random secret key for ExApp
-set "EXAPP_SECRET="
-for /L %%i in (1,1,32) do call :append_random_char EXAPP_SECRET
-
-:: Update the .env file with the new ExApp secret
-powershell -Command "(Get-Content .env) -replace 'EXAPP_SECRET=.*', 'EXAPP_SECRET=%EXAPP_SECRET%' | Set-Content .env"
-
-:: Requirements-Verzeichnis erstellen
-echo Stelle sicher, dass alle Dateien vorhanden sind...
-if not exist "backup\attached_assets" mkdir backup\attached_assets
-if not exist "backup\attached_assets\requirements.txt" (
-    if exist "requirements.txt" (
-        copy requirements.txt backup\attached_assets\
-    ) else (
-        (
-            echo Flask^>=2.3.3
-            echo flask-cors^>=4.0.0
-            echo requests^>=2.31.0
-            echo paho-mqtt^>=2.2.1
-            echo python-dotenv^>=1.0.0
-            echo gunicorn^>=22.0.0
-            echo psycopg2-binary^>=2.9.9
-            echo jinja2^>=3.1.3
-            echo email-validator^>=2.0.0
-            echo flask-sqlalchemy^>=3.0.5
-            echo bleak^>=0.21.1
-        ) > backup\attached_assets\requirements.txt
+:continue
+REM Umgebungsvariablen aus .env-Datei laden
+if exist ".env" (
+    echo Umgebungsvariablen werden geladen...
+    for /f "tokens=*" %%a in (.env) do (
+        set %%a
     )
-)
-
-:: Prüfen, ob Ports verfügbar sind
-set WEB_PORT=5000
-set API_PORT=8000
-set MQTT_PORT=1883
-
-:: Ports anpassen (in Windows weniger zuverlässig als in Linux)
-powershell -Command "(Get-Content docker-compose.yml) -replace '- \"5000:5000\"', '- \"%WEB_PORT%:5000\"' | Set-Content docker-compose.yml"
-powershell -Command "(Get-Content docker-compose.yml) -replace '- \"8000:8000\"', '- \"%API_PORT%:8000\"' | Set-Content docker-compose.yml"
-powershell -Command "(Get-Content docker-compose.yml) -replace '- \"1883:1883\"', '- \"%MQTT_PORT%:1883\"' | Set-Content docker-compose.yml"
-
-:: Container starten
-echo Starte SwissAirDry-Container...
-docker-compose build && docker-compose up -d
-
-IF %ERRORLEVEL% NEQ 0 (
-    echo Fehler beim Starten der Container. Bitte prüfen Sie die Logs.
-    docker-compose logs
-    pause
-    exit
-)
-
-:: Steuerungsskript erstellen
-echo @echo off > "%INSTALL_DIR%\swissairdry-control.bat"
-echo cd /d "%INSTALL_DIR%" >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo. >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo if "%%1"=="start" goto start >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo if "%%1"=="stop" goto stop >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo if "%%1"=="restart" goto restart >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo if "%%1"=="status" goto status >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo if "%%1"=="logs" goto logs >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo if "%%1"=="update" goto update >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo. >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo echo Verwendung: swissairdry {start^|stop^|restart^|status^|logs^|update} >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo goto :eof >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo. >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo :start >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo docker-compose up -d >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo goto :eof >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo. >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo :stop >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo docker-compose down >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo goto :eof >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo. >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo :restart >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo docker-compose restart >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo goto :eof >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo. >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo :status >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo docker-compose ps >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo goto :eof >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo. >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo :logs >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo docker-compose logs -f >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo goto :eof >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo. >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo :update >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo git pull >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo docker-compose build >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo docker-compose up -d >> "%INSTALL_DIR%\swissairdry-control.bat"
-echo goto :eof >> "%INSTALL_DIR%\swissairdry-control.bat"
-
-:: Kurze Pause für Container-Start
-echo Warte, bis alle Dienste gestartet sind...
-timeout /t 10 /nobreak > nul
-
-:: Lokale IP-Adresse ermitteln
-for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4"') do (
-    set IP_ADDR=%%a
-    goto :got_ip
-)
-:got_ip
-set IP_ADDR=%IP_ADDR:~1%
-
-:: Verknüpfung auf Desktop erstellen
-echo Erstelle Desktop-Verknüpfung...
-powershell -Command "$WshShell = New-Object -comObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut([Environment]::GetFolderPath('Desktop') + '\SwissAirDry Steuerung.lnk'); $Shortcut.TargetPath = '%INSTALL_DIR%\swissairdry-control.bat'; $Shortcut.Save()"
-
-echo ================================================
-echo SwissAirDry wurde erfolgreich installiert!
-echo ================================================
-echo.
-echo Zugriff auf das Web-Interface:
-echo   http://%IP_ADDR%:%WEB_PORT%
-echo.
-echo MQTT-Broker ist erreichbar unter:
-echo   %IP_ADDR%:%MQTT_PORT%
-echo.
-echo Verwenden Sie folgende Befehle zur Steuerung:
-echo   - Doppelklick auf "SwissAirDry Steuerung" auf dem Desktop
-echo   - Oder im Installationsverzeichnis: swissairdry-control.bat {Befehl}
-echo.
-echo Verfügbare Befehle:
-echo   start    - Startet alle Dienste
-echo   stop     - Stoppt alle Dienste
-echo   restart  - Startet alle Dienste neu
-echo   status   - Zeigt den Status aller Dienste
-echo   logs     - Zeigt die Logs aller Dienste
-echo   update   - Aktualisiert auf die neueste Version
-echo.
-
-:: Bluetooth-Fähigkeit prüfen
-powershell -Command "Get-PnpDevice -Class Bluetooth | Where-Object { $_.Status -eq 'OK' }" >nul 2>&1
-IF %ERRORLEVEL% EQU 0 (
-    echo Bluetooth-Hardware erkannt. BLE-Funktionalität ist verfügbar.
+    echo Umgebungsvariablen geladen.
 ) else (
-    echo Keine Bluetooth-Hardware erkannt. BLE-Funktionalität ist eingeschränkt.
-    echo Falls Sie BLE-Funktionalität benötigen, stellen Sie sicher, dass Bluetooth aktiviert ist.
+    echo [WARNUNG] Keine .env-Datei gefunden. Umgebungsvariablen müssen manuell gesetzt werden.
+)
+echo.
+
+REM Prüfen, ob der Cloudflare API-Token konfiguriert ist
+if "%CLOUDFLARE_API_TOKEN%"=="" (
+    echo [WARNUNG] CLOUDFLARE_API_TOKEN ist nicht konfiguriert.
+    echo Die Domainverwaltung wird nicht funktionieren.
+    echo Bitte setzen Sie den Token in der .env-Datei:
+    echo CLOUDFLARE_API_TOKEN=Ihr_Cloudflare_API_Token
+    echo.
+)
+
+REM Prüfen, ob Python installiert ist
+python --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [FEHLER] Python ist nicht installiert.
+    echo Bitte installieren Sie Python und versuchen Sie es erneut.
+    exit /b 1
+)
+
+REM Prüfen, ob Docker installiert ist und läuft
+set USE_DOCKER=false
+docker --version >nul 2>&1
+if %errorlevel% equ 0 (
+    echo Docker ist installiert.
+    
+    REM Prüfen, ob docker-compose.yml vorhanden ist
+    if exist "docker-compose.yml" (
+        echo [FRAGE] Möchten Sie die Anwendung mit Docker starten? (j/n)
+        set /p START_WITH_DOCKER="> "
+        
+        if /i "%START_WITH_DOCKER%"=="j" set USE_DOCKER=true
+    )
+    echo.
+)
+
+REM Anwendung starten (mit Docker oder direkt)
+if "%USE_DOCKER%"=="true" (
+    echo Starte SwissAirDry mit Docker...
+    docker-compose down
+    docker-compose up -d
+    
+    echo SwissAirDry wurde erfolgreich mit Docker gestartet.
+    echo Zugangsdaten:
+    echo - Web-Interface: http://localhost:5000
+    echo - Domain-Verwaltung: http://localhost:5000/domains
+    echo - MQTT-Broker: localhost:1883
+    
+    echo.
+    echo Container-Status:
+    docker-compose ps
+) else (
+    echo Starte SwissAirDry direkt...
+    
+    REM Datenbank initialisieren (falls notwendig)
+    if exist "main.py" (
+        echo Initialisiere Datenbank...
+        python -c "from main import models; from sqlalchemy import create_engine; import os; engine = create_engine(os.environ.get('DATABASE_URL')); models.Base.metadata.create_all(bind=engine)" 2>nul
+    )
+    
+    REM Anwendung starten
+    echo Starte Hauptanwendung...
+    start /B python main.py
+    
+    REM Warten, bis die Anwendung gestartet ist
+    timeout /t 2 /nobreak >nul
+    
+    echo SwissAirDry wurde gestartet.
+    echo Zugangsdaten:
+    echo - Web-Interface: http://localhost:5000
+    echo - Domain-Verwaltung: http://localhost:5000/domains
 )
 
 echo.
-echo Für weitere Informationen besuchen Sie die Dokumentation:
-echo   %INSTALL_DIR%\docs\
+echo ============================================
+echo       SwissAirDry läuft jetzt!       
+echo ============================================
 echo.
-echo Installation abgeschlossen! Drücken Sie eine Taste, um zu beenden...
-pause > nul
-exit
+echo Informationen:
+echo - Version: v1.0.0
+echo - Release-Tag: ins
+echo - Commit-Hash: f307b0c
+echo.
+echo Bei Problemen:
+echo - Überprüfen Sie die Logdateien
+echo - Führen Sie 'tools\generate_install_report.bat' aus
+echo - Besuchen Sie die GitHub-Seite: https://github.com/Arduinoeinsteiger/ERP
+echo.
+echo Zum Beenden: STRG+C drücken und dann 'j' eingeben
 
-:append_random_char
-:: Get a random number between 0 and the length of CHARS
-set /a rand_index=%random% %% 62
-:: Append the character at that position to the specified variable
-call set "%1=%%%1%%%CHARS:~%rand_index%,1%%"
-goto :eof
+REM Warten auf Benutzerinteraktion
+if "%USE_DOCKER%"=="false" (
+    pause
+)
